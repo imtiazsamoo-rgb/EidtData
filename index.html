@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IBFS Enrollment Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a',
+            },
+            dark: '#0f172a'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Outfit', sans-serif; background: #f8fafc; color: #334155; }
+    .hidden { display: none !important; }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Animations */
+    .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginView" class="min-h-screen flex items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50">
+    <div class="glass-panel w-full max-w-md p-8 md:p-10 rounded-3xl fade-in relative overflow-hidden">
+      <!-- Decorative Elements -->
+      <div class="absolute -top-16 -right-16 w-32 h-32 bg-brand-100 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+      <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-indigo-100 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+
+      <div class="relative z-10">
+        <div class="text-center mb-10">
+          <div class="w-16 h-16 bg-gradient-to-tr from-brand-500 to-indigo-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg transform -rotate-3">
+            <i class="fas fa-user-graduate text-3xl"></i>
+          </div>
+          <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">IBFS Enrollment</h2>
+          <p class="text-slate-500 mt-2 font-medium">Student Admission & Registration</p>
+        </div>
+        
+        <div id="loginMessage" class="mb-4 text-center text-sm font-semibold"></div>
+        
+        <div class="space-y-5">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+            <input id="emailInput" type="email" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition-all" placeholder="user@ibfs.edu.pk">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+            <input id="passwordInput" type="password" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition-all" placeholder="••••••••">
+          </div>
+          <button id="loginBtn" class="w-full bg-slate-900 hover:bg-brand-600 text-white font-bold py-4 rounded-xl transition-all shadow-md transform hover:-translate-y-0.5 mt-4">
+            Sign In
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP SHELL -->
+  <div id="appView" class="hidden min-h-screen flex bg-slate-50">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-dark text-white fixed inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-20 shadow-2xl flex flex-col">
+      <div class="p-6 border-b border-slate-800 flex items-center gap-4">
+        <div class="w-12 h-12 bg-brand-600 rounded-xl flex items-center justify-center text-xl shadow-lg">
+          <i class="fas fa-user-graduate"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">Enrollment</h1>
+          <p class="text-slate-400 text-xs">IBFS System</p>
+        </div>
+      </div>
+      
+      <div class="p-6 flex-1 overflow-y-auto">
+        <div class="bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-700/50">
+          <div id="sideUserName" class="font-bold text-sm text-slate-200 truncate">Loading...</div>
+          <div id="sideUserMeta" class="text-xs text-brand-400 font-semibold uppercase tracking-wider mt-1">...</div>
+        </div>
+
+        <nav class="space-y-1.5">
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-medium transition-colors">
+            <i class="fas fa-home w-5"></i> Dashboard
+          </button>
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
+            <i class="fas fa-plus-circle w-5"></i> New Admission
+          </button>
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
+            <i class="fas fa-users w-5"></i> Student Directory
+          </button>
+          <a href="edit.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
+            <i class="fas fa-edit w-5"></i> Edit & Verify Records
+          </a>
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
+            <i class="fas fa-file-invoice w-5"></i> Fee Challans
+          </button>
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
+            <i class="fas fa-chart-pie w-5"></i> Reports
+          </button>
+        </nav>
+      </div>
+      
+      <div class="p-6 border-t border-slate-800">
+        <button id="logoutBtn" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 font-bold transition-colors">
+          <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 lg:ml-72 flex flex-col min-h-screen transition-all">
+      <!-- Topbar -->
+      <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10 px-6 h-20 flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-4">
+          <button id="sidebarToggle" class="lg:hidden w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors">
+            <i class="fas fa-bars text-lg"></i>
+          </button>
+          <div>
+            <h2 class="text-2xl font-extrabold text-slate-800">Dashboard</h2>
+            <p class="text-sm text-slate-500 font-medium">Overview of admissions and enrollments</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <div class="hidden md:flex items-center gap-2 bg-brand-50 text-brand-700 px-4 py-2 rounded-full font-bold text-sm border border-brand-100 shadow-sm">
+            <i class="fas fa-school"></i>
+            <span id="currentSchool">Campus: All</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard Content -->
+      <div class="p-6 lg:p-8 flex-1">
+        
+        <!-- Stats Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 fade-in">
+          <div class="glass-panel p-6 rounded-3xl">
+            <div class="flex justify-between items-start mb-4">
+              <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-users"></i></div>
+              <span class="text-xs font-bold px-2 py-1 bg-green-100 text-green-700 rounded-full">+12%</span>
+            </div>
+            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Total Students</p>
+            <h3 class="text-3xl font-extrabold text-slate-800 mt-1">1,248</h3>
+          </div>
+          
+          <div class="glass-panel p-6 rounded-3xl" style="animation-delay: 50ms;">
+            <div class="flex justify-between items-start mb-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-user-plus"></i></div>
+              <span class="text-xs font-bold px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">This Month</span>
+            </div>
+            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">New Admissions</p>
+            <h3 class="text-3xl font-extrabold text-slate-800 mt-1">84</h3>
+          </div>
+          
+          <div class="glass-panel p-6 rounded-3xl" style="animation-delay: 100ms;">
+            <div class="flex justify-between items-start mb-4">
+              <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-clock"></i></div>
+            </div>
+            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Pending Approvals</p>
+            <h3 class="text-3xl font-extrabold text-slate-800 mt-1">12</h3>
+          </div>
+          
+          <div class="glass-panel p-6 rounded-3xl" style="animation-delay: 150ms;">
+            <div class="flex justify-between items-start mb-4">
+              <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-file-invoice-dollar"></i></div>
+            </div>
+            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Fee Collection</p>
+            <h3 class="text-3xl font-extrabold text-slate-800 mt-1">94%</h3>
+          </div>
+        </div>
+
+        <!-- Recent Enrollments Table -->
+        <div class="glass-panel rounded-3xl overflow-hidden fade-in" style="animation-delay: 200ms;">
+          <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
+            <h3 class="text-lg font-bold text-slate-800">Recent Enrollments</h3>
+            <button class="text-brand-600 hover:text-brand-800 font-semibold text-sm transition-colors">View All <i class="fas fa-arrow-right ml-1"></i></button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                  <th class="p-4 font-bold">Student Name</th>
+                  <th class="p-4 font-bold">Grade / Class</th>
+                  <th class="p-4 font-bold">Date</th>
+                  <th class="p-4 font-bold">Status</th>
+                  <th class="p-4 font-bold text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 bg-white">
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="p-4">
+                    <div class="font-bold text-slate-800">Aisha Khan</div>
+                    <div class="text-xs text-slate-500">ID: STU-8821</div>
+                  </td>
+                  <td class="p-4 font-medium text-slate-700">Grade 5 - Section A</td>
+                  <td class="p-4 text-sm text-slate-600">Oct 24, 2026</td>
+                  <td class="p-4"><span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">Admitted</span></td>
+                  <td class="p-4 text-right"><button class="text-brand-600 hover:bg-brand-50 p-2 rounded-lg transition-colors"><i class="fas fa-edit"></i></button></td>
+                </tr>
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="p-4">
+                    <div class="font-bold text-slate-800">Zayn Malik</div>
+                    <div class="text-xs text-slate-500">ID: STU-8822</div>
+                  </td>
+                  <td class="p-4 font-medium text-slate-700">Grade 8 - Section B</td>
+                  <td class="p-4 text-sm text-slate-600">Oct 24, 2026</td>
+                  <td class="p-4"><span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">Pending Docs</span></td>
+                  <td class="p-4 text-right"><button class="text-brand-600 hover:bg-brand-50 p-2 rounded-lg transition-colors"><i class="fas fa-edit"></i></button></td>
+                </tr>
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="p-4">
+                    <div class="font-bold text-slate-800">Fatima Ahmed</div>
+                    <div class="text-xs text-slate-500">ID: STU-8823</div>
+                  </td>
+                  <td class="p-4 font-medium text-slate-700">Grade 3 - Section A</td>
+                  <td class="p-4 text-sm text-slate-600">Oct 23, 2026</td>
+                  <td class="p-4"><span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">Admitted</span></td>
+                  <td class="p-4 text-right"><button class="text-brand-600 hover:bg-brand-50 p-2 rounded-lg transition-colors"><i class="fas fa-edit"></i></button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // SSO & Portal Configuration
+    const CONFIG = {
+      // Dummy API url for standalone testing, real integration uses Central Portal
+      apiBaseUrl: "https://script.google.com/macros/s/AKfycbwhSGicsU1-wu9w25yRLcNszUdpnbsoywr4FeiB4CYSP7MQf3zkOqoOP92uPrMZg193Cw/exec",
+      portalApiBaseUrl: "https://script.google.com/macros/s/AKfycbxma7ltR4xYcIws1mLxMmZBXGgnxAwUHJszD9zC6-GMwMmJ837MjK-n1iSDLalOLOIt/exec",
+      portalAppId: "enrollment-app" // IMPORTANT: Must match the Central Portal DB
+    };
+    const ENROLLMENT_STORAGE_KEY = "ibfs_enrollment_user";
+    
+    let state = { user: null };
+
+    // Elements
+    const $ = id => document.getElementById(id);
+    const loginView = $('loginView');
+    const appView = $('appView');
+    const msgBox = $('loginMessage');
+
+    // Events
+    $('loginBtn').addEventListener('click', handleLocalLogin);
+    $('logoutBtn').addEventListener('click', handleLogout);
+    $('sidebarToggle').addEventListener('click', () => {
+      const sb = $('sidebar');
+      if (sb.classList.contains('-translate-x-full')) {
+        sb.classList.remove('-translate-x-full');
+      } else {
+        sb.classList.add('-translate-x-full');
+      }
+    });
+
+    // Helpers
+    function showMsg(text, type) {
+      msgBox.innerText = text;
+      msgBox.className = `mb-4 text-sm font-bold text-center p-3 rounded-xl ${type === 'err' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-green-50 text-green-600 border border-green-200'}`;
+    }
+
+    async function portalPost(payload) {
+      const params = new URLSearchParams(window.location.search);
+      const portalApiUrl = params.get("portalApiUrl") || CONFIG.portalApiBaseUrl;
+      const res = await fetch(portalApiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload || {})
+      });
+      return await res.json();
+    }
+
+    // Auth Flows
+    async function init() {
+      // 1. Check if launched from Portal via iframe SSO token
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+      
+      if (token) {
+        await loginWithPortalToken(token);
+      } else {
+        // 2. Check local storage
+        const saved = localStorage.getItem(ENROLLMENT_STORAGE_KEY);
+        if (saved) {
+          state.user = JSON.parse(saved);
+          renderApp();
+        }
+      }
+    }
+
+    async function loginWithPortalToken(token) {
+      const appId = new URLSearchParams(window.location.search).get("appId") || CONFIG.portalAppId;
+      try {
+        showMsg("Validating portal session...", "ok");
+        $('loginBtn').disabled = true;
+        
+        const result = await portalPost({ action: "verifyAccess", token, appId });
+        
+        if (result && result.status === "success" && result.allowed) {
+          state.user = result.user || result;
+          localStorage.setItem(ENROLLMENT_STORAGE_KEY, JSON.stringify(state.user));
+          renderApp();
+        } else {
+          showMsg(result.message || "Portal access denied.", "err");
+        }
+      } catch (err) {
+        showMsg("Portal connection failed.", "err");
+      } finally {
+        $('loginBtn').disabled = false;
+      }
+    }
+
+    async function handleLocalLogin() {
+      const email = $('emailInput').value.trim();
+      const pwd = $('passwordInput').value.trim();
+      if(!email || !pwd) return showMsg("Email and password required", "err");
+      
+      // Fallback local API login (if running outside portal)
+      try {
+        showMsg("Authenticating...", "ok");
+        $('loginBtn').disabled = true;
+        
+        const q = new URLSearchParams({ action: "login", email, password: pwd });
+        const res = await fetch(`${CONFIG.apiBaseUrl}?${q.toString()}`);
+        const result = await res.json();
+        
+        if(result.success || result.status === "success") {
+          state.user = result.user || result;
+          localStorage.setItem(ENROLLMENT_STORAGE_KEY, JSON.stringify(state.user));
+          renderApp();
+        } else {
+          showMsg("Invalid credentials.", "err");
+        }
+      } catch(e) {
+        showMsg("Network error.", "err");
+      } finally {
+        $('loginBtn').disabled = false;
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem(ENROLLMENT_STORAGE_KEY);
+      window.history.replaceState({}, "", window.location.origin + window.location.pathname);
+      window.location.reload();
+    }
+
+    function renderApp() {
+      loginView.classList.add('hidden');
+      appView.classList.remove('hidden');
+      
+      const u = state.user;
+      $('sideUserName').innerText = u.name || (u.email ? u.email.split('@')[0] : "User");
+      $('sideUserMeta').innerText = u.appRole || u.role || "User";
+      
+      // Display scope (e.g. school code)
+      if (u.scope && u.scope.includes('school=')) {
+        $('currentSchool').innerText = `Campus: ${u.scope.split('school=')[1].split(',')[0]}`;
+      } else if (u.schoolCode) {
+        $('currentSchool').innerText = `Campus: ${u.schoolCode}`;
+      } else {
+        $('currentSchool').innerText = `Campus: All`;
+      }
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>
