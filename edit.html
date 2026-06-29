@@ -135,16 +135,15 @@
             <label class="block text-xs font-bold text-slate-500 mb-1">Class</label>
             <select id="filterClass" class="w-full px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 outline-none text-sm">
               <option value="">All Classes</option>
-              <option value="Nursery">Nursery</option>
-              <option value="KG">KG</option>
-              <option value="First Class">First Class</option>
-              <option value="Second Class">Second Class</option>
-              <option value="Third Class">Third Class</option>
-              <option value="Fourth Class">Fourth Class</option>
-              <option value="Fifth Class">Fifth Class</option>
-              <option value="Sixth Class">Sixth Class</option>
-              <option value="Seventh Class">Seventh Class</option>
-              <option value="Eighth Class">Eighth Class</option>
+              <option value="Kachi">Kachi</option>
+              <option value="I">I</option>
+              <option value="II">II</option>
+              <option value="III">III</option>
+              <option value="IV">IV</option>
+              <option value="V">V</option>
+              <option value="VI">VI</option>
+              <option value="VII">VII</option>
+              <option value="VIII">VIII</option>
             </select>
           </div>
           <div class="w-full md:w-48">
@@ -224,7 +223,7 @@
           </div>
 
           <button id="markVerifiedBtn" class="w-full py-3 bg-green-100 hover:bg-green-200 text-green-700 font-bold rounded-xl border border-green-200 transition-colors flex items-center justify-center gap-2">
-            <i class="fas fa-check-circle"></i> Mark Data Correct
+            <i class="fas fa-check-circle"></i> Verify Data Without Edit
           </button>
         </div>
 
@@ -241,7 +240,7 @@
                 <label class="block text-xs font-bold text-slate-500 mb-1">Status</label>
                 <select id="e_status" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
                   <option value="New Admission">New Admission</option>
-                  <option value="Return">Return</option>
+                  <option value="Retained">Retained</option>
                   <option value="Promoted">Promoted</option>
                   <option value="Drop Out">Drop Out</option>
                   <option value="Pass Out">Pass Out</option>
@@ -303,6 +302,24 @@
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                 </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Parent Contact</label>
+                <input type="text" id="e_contact" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+               <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Date of Admission</label>
+                <input type="date" id="e_doa" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Residential Address</label>
+                <input type="text" id="e_address" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
               </div>
             </div>
             

@@ -231,6 +231,10 @@
       $('e_bform').value = s['BFormNo'] || '';
       $('e_gender').value = s['Gender'] || '';
       $('e_status').value = s['Status'] || 'Admitted';
+      $('e_contact').value = s['ParentContact'] || '';
+      const doa = s['DateOfAdmission'];
+      $('e_doa').value = doa ? new Date(doa).toISOString().split('T')[0] : '';
+      $('e_address').value = s['ResidentialAddress'] || '';
 
       const vStatus = s['Verification_Status'] || 'Pending';
       $('dataStatusBadge').innerText = vStatus;
@@ -268,6 +272,9 @@
       updateData['DOB'] = $('e_dob').value;
       updateData['CurrentClass'] = $('e_class').value.trim();
       updateData['BFormNo'] = $('e_bform').value.trim();
+      updateData['ParentContact'] = $('e_contact').value.trim();
+      updateData['DateOfAdmission'] = $('e_doa').value;
+      updateData['ResidentialAddress'] = $('e_address').value.trim();
 
       const sc = state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : '');
 
