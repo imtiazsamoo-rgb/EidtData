@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit & Verify Records - IBFS Enrollment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
+          colors: {
+            brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' },
+            dark: '#0f172a'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Outfit', sans-serif; background: #f8fafc; color: #334155; }
+    .hidden { display: none !important; }
+    .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08); border: 1px solid rgba(255, 255, 255, 0.5); }
+    .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .modal-overlay { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); }
+    .cropper-container { width: 100%; max-height: 400px; }
+  </style>
+</head>
+<body class="antialiased selection:bg-brand-500 selection:text-white" onload="init()">
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginView" class="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+    <div class="glass-panel w-full max-w-md p-8 rounded-3xl text-center">
+      <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-4">IBFS Verification</h2>
+      <div id="loginMessage" class="text-sm font-semibold p-3 rounded-lg bg-blue-50 text-blue-600">Checking authentication...</div>
+    </div>
+  </div>
+
+  <!-- APP SHELL -->
+  <div id="appView" class="hidden min-h-screen flex bg-slate-50">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-dark text-white fixed inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-20 shadow-2xl flex flex-col">
+      <div class="p-6 border-b border-slate-800 flex items-center gap-4">
+        <div class="w-12 h-12 bg-brand-600 rounded-xl flex items-center justify-center text-xl shadow-lg">
+          <i class="fas fa-user-check"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">Verification</h1>
+          <p class="text-slate-400 text-xs">IBFS System</p>
+        </div>
+      </div>
+      
+      <div class="p-6 flex-1 overflow-y-auto">
+        <div class="bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-700/50">
+          <div id="sideUserName" class="font-bold text-sm text-slate-200 truncate">Loading...</div>
+          <div id="sideUserMeta" class="text-xs text-brand-400 font-semibold uppercase tracking-wider mt-1">...</div>
+        </div>
+
+        <nav class="space-y-1.5">
+          <a href="index.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
+            <i class="fas fa-home w-5"></i> Dashboard
+          </a>
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-medium transition-colors">
+            <i class="fas fa-edit w-5"></i> Edit & Verify Records
+          </button>
+        </nav>
+      </div>
+      
+      <div class="p-6 border-t border-slate-800">
+        <button id="logoutBtn" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 font-bold transition-colors">
+          <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 lg:ml-72 flex flex-col min-h-screen transition-all">
+      <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10 px-6 h-20 flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-4">
+          <button id="sidebarToggle" class="lg:hidden w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
+            <i class="fas fa-bars text-lg"></i>
+          </button>
+          <div>
+            <h2 class="text-2xl font-extrabold text-slate-800">Edit & Verify</h2>
+            <p class="text-sm text-slate-500 font-medium">Verify student data and correct mistakes</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="hidden md:flex items-center gap-2 bg-brand-50 text-brand-700 px-4 py-2 rounded-full font-bold text-sm border border-brand-100">
+            <i class="fas fa-school"></i>
+            <span id="currentSchool">Loading...</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="p-6 lg:p-8 flex-1 w-full max-w-7xl mx-auto space-y-6">
+        
+        <!-- Dashboard Counts -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-2xl border border-slate-200">
+            <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Students</div>
+            <div id="countTotal" class="text-3xl font-extrabold text-slate-800">0</div>
+          </div>
+          <div class="glass-panel p-5 rounded-2xl border border-orange-200 bg-orange-50/30">
+            <div class="text-orange-600 text-xs font-bold uppercase tracking-wider mb-1">Pending</div>
+            <div id="countPending" class="text-3xl font-extrabold text-orange-700">0</div>
+          </div>
+          <div class="glass-panel p-5 rounded-2xl border border-green-200 bg-green-50/30">
+            <div class="text-green-600 text-xs font-bold uppercase tracking-wider mb-1">Verified</div>
+            <div id="countVerified" class="text-3xl font-extrabold text-green-700">0</div>
+          </div>
+          <div class="glass-panel p-5 rounded-2xl border border-blue-200 bg-blue-50/30">
+            <div class="text-blue-600 text-xs font-bold uppercase tracking-wider mb-1">Corrected</div>
+            <div id="countCorrected" class="text-3xl font-extrabold text-blue-700">0</div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-200 flex flex-wrap gap-4 items-end">
+          <div class="flex-1 min-w-[200px]">
+            <label class="block text-xs font-bold text-slate-500 mb-1">Search GR No / Name</label>
+            <input type="text" id="searchQuery" class="w-full px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:border-brand-500 outline-none text-sm" placeholder="Search...">
+          </div>
+          <div class="w-full md:w-48">
+            <label class="block text-xs font-bold text-slate-500 mb-1">Class</label>
+            <select id="filterClass" class="w-full px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 outline-none text-sm">
+              <option value="">All Classes</option>
+              <option value="Nursery">Nursery</option>
+              <option value="KG">KG</option>
+              <option value="First Class">First Class</option>
+              <option value="Second Class">Second Class</option>
+              <option value="Third Class">Third Class</option>
+              <option value="Fourth Class">Fourth Class</option>
+              <option value="Fifth Class">Fifth Class</option>
+              <option value="Sixth Class">Sixth Class</option>
+              <option value="Seventh Class">Seventh Class</option>
+              <option value="Eighth Class">Eighth Class</option>
+            </select>
+          </div>
+          <div class="w-full md:w-48">
+            <label class="block text-xs font-bold text-slate-500 mb-1">Status</label>
+            <select id="filterStatus" class="w-full px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 outline-none text-sm">
+              <option value="Pending">Pending</option>
+              <option value="Verified">Verified</option>
+              <option value="Corrected">Corrected</option>
+              <option value="">All</option>
+            </select>
+          </div>
+          <button id="loadBtn" class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm transition-colors h-10">
+            <i class="fas fa-search mr-1"></i> Search
+          </button>
+        </div>
+
+        <!-- Student List -->
+        <div id="studentGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <!-- Cards will be populated here -->
+          <div class="text-center text-slate-500 py-10 col-span-full">Click Search to load students.</div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 modal-overlay" onclick="closeModal()"></div>
+    <div class="glass-panel w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl relative z-10 flex flex-col fade-in">
+      
+      <div class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-slate-200 p-6 flex justify-between items-center z-20">
+        <div>
+          <h3 class="text-2xl font-extrabold text-slate-800">Edit & Verify Student</h3>
+          <p class="text-sm text-slate-500" id="editModalSubtitle">GR No: ...</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 md:p-8 flex flex-col md:flex-row gap-8">
+        
+        <!-- Left: Photo & Quick Actions -->
+        <div class="w-full md:w-1/3 flex flex-col items-center gap-4">
+          <div class="relative group w-48 h-56 rounded-2xl overflow-hidden border-4 border-slate-100 shadow-md">
+            <img id="stuPhoto" src="" alt="Student Photo" class="w-full h-full object-cover bg-slate-200">
+            <div class="absolute inset-0 bg-black/50 hidden group-hover:flex flex-col items-center justify-center transition-all cursor-pointer" onclick="$('photoInput').click()">
+              <div class="text-white text-center">
+                <i class="fas fa-camera text-2xl mb-1"></i>
+                <p class="text-xs font-bold">Replace Photo</p>
+              </div>
+            </div>
+            <input type="file" id="photoInput" accept="image/*" class="hidden">
+          </div>
+          
+          <div class="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+            <div class="text-sm flex justify-between">
+              <span class="text-slate-500">Data Status:</span>
+              <span id="dataStatusBadge" class="font-bold">-</span>
+            </div>
+            <div class="text-sm flex justify-between">
+              <span class="text-slate-500">Photo Status:</span>
+              <span id="photoStatusBadge" class="font-bold">-</span>
+            </div>
+          </div>
+
+          <button id="markVerifiedBtn" class="w-full py-3 bg-green-100 hover:bg-green-200 text-green-700 font-bold rounded-xl border border-green-200 transition-colors flex items-center justify-center gap-2">
+            <i class="fas fa-check-circle"></i> Mark Data Correct
+          </button>
+        </div>
+
+        <!-- Right: Form -->
+        <div class="w-full md:w-2/3">
+          <form id="editForm" class="space-y-4">
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">GR No</label>
+                <input type="text" id="e_grNo" readonly class="w-full px-4 py-2.5 bg-slate-100 border border-slate-200 rounded-xl font-bold text-slate-500 cursor-not-allowed text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Status</label>
+                <select id="e_status" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+                  <option value="Admitted">Admitted</option>
+                  <option value="Left">Left</option>
+                  <option value="Struck Off">Struck Off</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Student Name</label>
+                <input type="text" id="e_name" required class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Surname / Cast</label>
+                <input type="text" id="e_surname" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Father's Name</label>
+                <input type="text" id="e_father" required class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Parent CNIC</label>
+                <input type="text" id="e_cnic" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Date of Birth</label>
+                <input type="date" id="e_dob" required class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Current Class</label>
+                <select id="e_class" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+                  <option value="Nursery">Nursery</option>
+                  <option value="KG">KG</option>
+                  <option value="First Class">First Class</option>
+                  <option value="Second Class">Second Class</option>
+                  <option value="Third Class">Third Class</option>
+                  <option value="Fourth Class">Fourth Class</option>
+                  <option value="Fifth Class">Fifth Class</option>
+                  <option value="Sixth Class">Sixth Class</option>
+                  <option value="Seventh Class">Seventh Class</option>
+                  <option value="Eighth Class">Eighth Class</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">B-Form No</label>
+                <input type="text" id="e_bform" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Gender</label>
+                <select id="e_gender" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+              <button type="button" onclick="closeModal()" class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors">Cancel</button>
+              <button type="submit" id="saveVerifyBtn" class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold transition-colors flex items-center gap-2">
+                <i class="fas fa-save"></i> Update & Verify
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crop Modal -->
+  <div id="cropModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 modal-overlay"></div>
+    <div class="glass-panel w-full max-w-lg p-6 rounded-3xl relative z-10 flex flex-col">
+      <h3 class="text-xl font-extrabold text-slate-800 mb-4">Crop New Photo</h3>
+      <div class="w-full bg-slate-900 rounded-xl overflow-hidden mb-4 flex items-center justify-center" style="height: 300px;">
+        <img id="cropperImage" src="" class="max-w-full hidden">
+      </div>
+      <div class="flex justify-end gap-3">
+        <button type="button" onclick="$('cropModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold">Cancel</button>
+        <button type="button" id="applyCropBtn" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold">Apply & Replace</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading / Status Overlay -->
+  <div id="statusOverlay" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-overlay fade-in">
+    <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full text-center">
+      <div id="statusIcon" class="text-4xl text-brand-600 mb-3"><i class="fas fa-spinner fa-spin"></i></div>
+      <h3 id="statusTitle" class="text-lg font-bold text-slate-800">Processing</h3>
+      <p id="statusMsg" class="text-sm text-slate-500 mt-1">Please wait...</p>
+      <button id="statusCloseBtn" onclick="$('statusOverlay').classList.add('hidden')" class="hidden mt-4 px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl w-full">Close</button>
+    </div>
+  </div>
+
+  <script src="edit.js"></script>
+</body>
+</html>
