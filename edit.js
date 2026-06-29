@@ -182,14 +182,14 @@
       }
 
       state.students.forEach((s, idx) => {
-        const vStatus = getVal(s, 'Verification_Status', 'Verification Status') || 'Pending';
+        const vStatus = s['Verification_Status'] || 'Pending';
         const vColor = vStatus === 'Verified' ? 'bg-green-100 text-green-700' : (vStatus === 'Corrected' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700');
         
-        const photoUrl = getVal(s, 'Student Photo', 'StudentPhoto', 'Photo');
-        const sName = getVal(s, 'Student Name', 'StudentName', 'Name');
-        const fName = getVal(s, 'Father Name', 'FatherName');
-        const gNo = getVal(s, 'GR No', 'GRNo');
-        const cClass = getVal(s, 'Current Class', 'CurrentClass', 'Class');
+        const photoUrl = s['PhotoURL'] || '';
+        const sName = s['StudentName'] || '';
+        const fName = s['FatherGuardianName'] || '';
+        const gNo = s['GRNo'] || '';
+        const cClass = s['CurrentClass'] || '';
         
         const card = document.createElement('div');
         card.className = "glass-panel p-5 rounded-2xl flex gap-4 items-center hover:shadow-lg transition-shadow border border-slate-200 cursor-pointer";
@@ -215,20 +215,20 @@
       const s = state.students[idx];
       state.currentStudent = s;
       
-      const gNo = getVal(s, 'GR No', 'GRNo');
-      const cClass = getVal(s, 'Current Class', 'CurrentClass', 'Class');
+      const gNo = s['GRNo'] || '';
+      const cClass = s['CurrentClass'] || '';
       
       $('editModalSubtitle').innerText = 'GR No: ' + gNo + ' | Class: ' + cClass;
       
       $('e_grNo').value = gNo;
-      $('e_name').value = getVal(s, 'Student Name', 'StudentName', 'Name');
-      $('e_surname').value = getVal(s, 'Surname / Cast', 'Surname', 'Cast');
-      $('e_father').value = getVal(s, 'Father Name', 'FatherName');
-      $('e_cnic').value = getVal(s, 'Parent CNIC', 'ParentCNIC', 'CNIC');
-      const dob = getVal(s, 'Date of Birth', 'DateOfBirth', 'DOB');
+      $('e_name').value = s['StudentName'] || '';
+      $('e_surname').value = s['SurnameCast'] || '';
+      $('e_father').value = s['FatherGuardianName'] || '';
+      $('e_cnic').value = s['ParentCNIC'] || '';
+      const dob = s['DOB'];
       $('e_dob').value = dob ? new Date(dob).toISOString().split('T')[0] : '';
       $('e_class').value = cClass;
-      $('e_bform').value = getVal(s, 'B-Form No', 'BFormNo', 'BForm');
+      $('e_bform').value = s['BFormNo'] || '';
       $('e_gender').value = s['Gender'] || '';
       $('e_status').value = s['Status'] || 'Admitted';
 
@@ -240,8 +240,8 @@
       $('photoStatusBadge').innerText = pStatus;
       $('photoStatusBadge').className = 'font-bold ' + (pStatus === 'Correct' ? 'text-green-600' : (pStatus === 'Replaced' ? 'text-blue-600' : 'text-orange-600'));
 
-      if(s['Student Photo']) {
-        $('stuPhoto').src = getThumb(s['Student Photo']);
+      if(s['PhotoURL']) {
+        $('stuPhoto').src = getThumb(s['PhotoURL']);
       } else {
         $('stuPhoto').src = '';
       }
@@ -257,17 +257,17 @@
     $('editForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const s = state.currentStudent;
-      const gNo = getVal(s, 'GR No', 'GRNo');
+      const gNo = s['GRNo'];
       const updateData = {};
       
-      // Map back to real keys dynamically
-      updateData[getRealKey(s, 'Student Name')] = $('e_name').value.trim();
-      updateData[getRealKey(s, 'Surname / Cast')] = $('e_surname').value.trim();
-      updateData[getRealKey(s, 'Father Name')] = $('e_father').value.trim();
-      updateData[getRealKey(s, 'Parent CNIC')] = $('e_cnic').value.trim();
-      updateData[getRealKey(s, 'Date of Birth')] = $('e_dob').value;
-      updateData[getRealKey(s, 'Current Class')] = $('e_class').value.trim();
-      updateData[getRealKey(s, 'B-Form No')] = $('e_bform').value.trim();
+      // Use exact column headers provided
+      updateData['StudentName'] = $('e_name').value.trim();
+      updateData['SurnameCast'] = $('e_surname').value.trim();
+      updateData['FatherGuardianName'] = $('e_father').value.trim();
+      updateData['ParentCNIC'] = $('e_cnic').value.trim();
+      updateData['DOB'] = $('e_dob').value;
+      updateData['CurrentClass'] = $('e_class').value.trim();
+      updateData['BFormNo'] = $('e_bform').value.trim();
 
       const sc = state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : '');
 
@@ -346,7 +346,7 @@
     $('applyCropBtn').addEventListener('click', async () => {
       if (!state.cropper) return;
       const s = state.currentStudent;
-      const gNo = getVal(s, 'GR No', 'GRNo');
+      const gNo = s['GRNo'];
       const sc = state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : '');
       
       const canvas = state.cropper.getCroppedCanvas({ width: 400, height: 400 });
