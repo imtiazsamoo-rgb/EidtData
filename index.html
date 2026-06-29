@@ -112,15 +112,12 @@
           <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
             <i class="fas fa-plus-circle w-5"></i> New Admission
           </button>
-          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
+          <button onclick="alert('Student Directory module is coming soon!')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
             <i class="fas fa-users w-5"></i> Student Directory
           </button>
           <a href="edit.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
             <i class="fas fa-edit w-5"></i> Edit & Verify Records
           </a>
-          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
-            <i class="fas fa-file-invoice w-5"></i> Fee Challans
-          </button>
           <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
             <i class="fas fa-chart-pie w-5"></i> Reports
           </button>
@@ -167,7 +164,7 @@
               <span class="text-xs font-bold px-2 py-1 bg-green-100 text-green-700 rounded-full">+12%</span>
             </div>
             <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Total Students</p>
-            <h3 class="text-3xl font-extrabold text-slate-800 mt-1">1,248</h3>
+            <h3 id="dashTotalStudents" class="text-3xl font-extrabold text-slate-800 mt-1">1,248</h3>
           </div>
           
           <div class="glass-panel p-6 rounded-3xl" style="animation-delay: 50ms;">
@@ -184,7 +181,7 @@
               <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-clock"></i></div>
             </div>
             <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Pending Approvals</p>
-            <h3 class="text-3xl font-extrabold text-slate-800 mt-1">12</h3>
+            <h3 id="dashPending" class="text-3xl font-extrabold text-slate-800 mt-1">12</h3>
           </div>
           
           <div class="glass-panel p-6 rounded-3xl" style="animation-delay: 150ms;">
@@ -256,8 +253,8 @@
   <script>
     // SSO & Portal Configuration
     const CONFIG = {
-      // Dummy API url for standalone testing, real integration uses Central Portal
-      apiBaseUrl: "https://script.google.com/macros/s/AKfycbwhSGicsU1-wu9w25yRLcNszUdpnbsoywr4FeiB4CYSP7MQf3zkOqoOP92uPrMZg193Cw/exec",
+      // API url for central integration
+      apiBaseUrl: "https://script.google.com/macros/s/AKfycbzrcDptT72e1HEen7VxJY9xMi7V2PU_ksS9P5-rUZeavFD1tfH7h1gjrneUB7DPhGZg/exec",
       portalApiBaseUrl: "https://script.google.com/macros/s/AKfycbxma7ltR4xYcIws1mLxMmZBXGgnxAwUHJszD9zC6-GMwMmJ837MjK-n1iSDLalOLOIt/exec",
       portalAppId: "enrollment-app" // IMPORTANT: Must match the Central Portal DB
     };
@@ -389,6 +386,34 @@
         $('currentSchool').innerText = `Campus: ${u.schoolCode}`;
       } else {
         $('currentSchool').innerText = `Campus: All`;
+      }
+      
+      loadDashboardStats();
+    }
+
+    async function loadDashboardStats() {
+      const u = state.user;
+      const schoolCode = u.schoolCode || (u.scope ? u.scope.replace('school=','') : '');
+      const q = new URLSearchParams({
+        action: "getVerificationList",
+        schoolCode: schoolCode,
+        user: u.email
+      });
+      
+      try {
+        const res = await fetch(`${CONFIG.apiBaseUrl}?${q.toString()}`);
+        const result = await res.json();
+        
+        if (result.status === 'success' && result.students) {
+          const students = result.students;
+          const total = students.length;
+          const pending = students.filter(s => s['Verification_Status'] === 'Pending' || !s['Verification_Status']).length;
+          
+          $('dashTotalStudents').innerText = total;
+          $('dashPending').innerText = pending;
+        }
+      } catch (e) {
+        console.error("Failed to load stats", e);
       }
     }
 

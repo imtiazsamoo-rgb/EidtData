@@ -224,6 +224,7 @@
       $('e_name').value = s['StudentName'] || '';
       $('e_surname').value = s['SurnameCast'] || '';
       $('e_father').value = s['FatherGuardianName'] || '';
+      $('e_mother').value = s['MotherName'] || '';
       $('e_cnic').value = s['ParentCNIC'] || '';
       const dob = s['DOB'];
       $('e_dob').value = dob ? new Date(dob).toISOString().split('T')[0] : '';
@@ -239,6 +240,13 @@
       const vStatus = s['Verification_Status'] || 'Pending';
       $('dataStatusBadge').innerText = vStatus;
       $('dataStatusBadge').className = 'font-bold ' + (vStatus === 'Verified' ? 'text-green-600' : (vStatus === 'Corrected' ? 'text-blue-600' : 'text-orange-600'));
+      
+      // Hide Verify Without Edit button if already verified or corrected
+      if (vStatus !== 'Pending') {
+        $('markVerifiedBtn').classList.add('hidden');
+      } else {
+        $('markVerifiedBtn').classList.remove('hidden');
+      }
       
       const pStatus = s['Photo_Status'] || 'Pending';
       $('photoStatusBadge').innerText = pStatus;
@@ -268,6 +276,7 @@
       updateData['StudentName'] = $('e_name').value.trim();
       updateData['SurnameCast'] = $('e_surname').value.trim();
       updateData['FatherGuardianName'] = $('e_father').value.trim();
+      updateData['MotherName'] = $('e_mother').value.trim();
       updateData['ParentCNIC'] = $('e_cnic').value.trim();
       updateData['DOB'] = $('e_dob').value;
       updateData['CurrentClass'] = $('e_class').value.trim();
