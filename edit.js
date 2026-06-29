@@ -152,6 +152,27 @@
       return url;
     }
 
+    function getVal(s, ...keys) {
+      for(let k of keys) {
+         if(s[k] !== undefined && s[k] !== '') return s[k];
+      }
+      for(let k of keys) {
+        let sk = k.toLowerCase().replace(/[\s\/-]/g, '');
+        for(let actualKey in s) {
+           if(actualKey.toLowerCase().replace(/[\s\/-]/g, '') === sk && s[actualKey] !== '') return s[actualKey];
+        }
+      }
+      return '';
+    }
+    
+    function getRealKey(s, k) {
+      let sk = k.toLowerCase().replace(/[\s\/-]/g, '');
+      for(let actualKey in s) {
+         if(actualKey.toLowerCase().replace(/[\s\/-]/g, '') === sk) return actualKey;
+      }
+      return k;
+    }
+
     function renderGrid() {
       const grid = $('studentGrid');
       grid.innerHTML = '';
@@ -161,21 +182,27 @@
       }
 
       state.students.forEach((s, idx) => {
-        const vStatus = s['Verification_Status'] || 'Pending';
+        const vStatus = getVal(s, 'Verification_Status', 'Verification Status') || 'Pending';
         const vColor = vStatus === 'Verified' ? 'bg-green-100 text-green-700' : (vStatus === 'Corrected' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700');
+        
+        const photoUrl = getVal(s, 'Student Photo', 'StudentPhoto', 'Photo');
+        const sName = getVal(s, 'Student Name', 'StudentName', 'Name');
+        const fName = getVal(s, 'Father Name', 'FatherName');
+        const gNo = getVal(s, 'GR No', 'GRNo');
+        const cClass = getVal(s, 'Current Class', 'CurrentClass', 'Class');
         
         const card = document.createElement('div');
         card.className = "glass-panel p-5 rounded-2xl flex gap-4 items-center hover:shadow-lg transition-shadow border border-slate-200 cursor-pointer";
         card.onclick = () => openEditModal(idx);
         card.innerHTML = `
           <div class="w-16 h-20 rounded-lg bg-slate-200 overflow-hidden shrink-0 border border-slate-300">
-            ${s['Student Photo'] ? '<img src="' + getThumb(s['Student Photo']) + '" class="w-full h-full object-cover">' : '<div class="w-full h-full flex items-center justify-center text-slate-400"><i class="fas fa-user"></i></div>'}
+            ${photoUrl ? '<img src="' + getThumb(photoUrl) + '" class="w-full h-full object-cover">' : '<div class="w-full h-full flex items-center justify-center text-slate-400"><i class="fas fa-user"></i></div>'}
           </div>
           <div class="flex-1 min-w-0">
-            <h4 class="font-bold text-slate-800 truncate">${s['Student Name']}</h4>
-            <div class="text-xs text-slate-500 mb-1 truncate">${s['Father Name']} | GR: ${s['GR No']}</div>
+            <h4 class="font-bold text-slate-800 truncate">${sName}</h4>
+            <div class="text-xs text-slate-500 mb-1 truncate">${fName} | GR: ${gNo}</div>
             <div class="flex gap-2 mt-2 flex-wrap">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">${s['Current Class']}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">${cClass}</span>
               <span class="px-2 py-0.5 rounded text-[10px] font-bold ${vColor} border border-transparent">${vStatus}</span>
             </div>
           </div>
@@ -188,16 +215,20 @@
       const s = state.students[idx];
       state.currentStudent = s;
       
-      $('editModalSubtitle').innerText = 'GR No: ' + s['GR No'] + ' | Class: ' + s['Current Class'];
+      const gNo = getVal(s, 'GR No', 'GRNo');
+      const cClass = getVal(s, 'Current Class', 'CurrentClass', 'Class');
       
-      $('e_grNo').value = s['GR No'];
-      $('e_name').value = s['Student Name'] || '';
-      $('e_surname').value = s['Surname / Cast'] || '';
-      $('e_father').value = s['Father Name'] || '';
-      $('e_cnic').value = s['Parent CNIC'] || '';
-      $('e_dob').value = s['Date of Birth'] ? new Date(s['Date of Birth']).toISOString().split('T')[0] : '';
-      $('e_class').value = s['Current Class'] || '';
-      $('e_bform').value = s['B-Form No'] || '';
+      $('editModalSubtitle').innerText = 'GR No: ' + gNo + ' | Class: ' + cClass;
+      
+      $('e_grNo').value = gNo;
+      $('e_name').value = getVal(s, 'Student Name', 'StudentName', 'Name');
+      $('e_surname').value = getVal(s, 'Surname / Cast', 'Surname', 'Cast');
+      $('e_father').value = getVal(s, 'Father Name', 'FatherName');
+      $('e_cnic').value = getVal(s, 'Parent CNIC', 'ParentCNIC', 'CNIC');
+      const dob = getVal(s, 'Date of Birth', 'DateOfBirth', 'DOB');
+      $('e_dob').value = dob ? new Date(dob).toISOString().split('T')[0] : '';
+      $('e_class').value = cClass;
+      $('e_bform').value = getVal(s, 'B-Form No', 'BFormNo', 'BForm');
       $('e_gender').value = s['Gender'] || '';
       $('e_status').value = s['Status'] || 'Admitted';
 
@@ -225,29 +256,30 @@
 
     $('editForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if(!state.currentStudent) return;
+      const s = state.currentStudent;
+      const gNo = getVal(s, 'GR No', 'GRNo');
+      const updateData = {};
       
-      const payload = {
-        action: 'updateAndVerifyStudent',
-        grNo: $('e_grNo').value,
-        schoolCode: state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : ''),
-        updatedBy: state.user.email,
-        data: {
-          'Student Name': $('e_name').value.trim(),
-          'Surname / Cast': $('e_surname').value.trim(),
-          'Father Name': $('e_father').value.trim(),
-          'Parent CNIC': $('e_cnic').value.trim(),
-          'Date of Birth': $('e_dob').value,
-          'Current Class': $('e_class').value,
-          'B-Form No': $('e_bform').value.trim(),
-          'Gender': $('e_gender').value,
-          'Status': $('e_status').value
-        }
-      };
+      // Map back to real keys dynamically
+      updateData[getRealKey(s, 'Student Name')] = $('e_name').value.trim();
+      updateData[getRealKey(s, 'Surname / Cast')] = $('e_surname').value.trim();
+      updateData[getRealKey(s, 'Father Name')] = $('e_father').value.trim();
+      updateData[getRealKey(s, 'Parent CNIC')] = $('e_cnic').value.trim();
+      updateData[getRealKey(s, 'Date of Birth')] = $('e_dob').value;
+      updateData[getRealKey(s, 'Current Class')] = $('e_class').value.trim();
+      updateData[getRealKey(s, 'B-Form No')] = $('e_bform').value.trim();
 
-      showOverlay("Updating & Verifying", "Saving to database...", "loading");
-      
+      const sc = state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : '');
+
+      showOverlay('Updating Record', 'Saving changes to database...');
       try {
+        const payload = { 
+          action: 'updateAndVerifyStudent', 
+          grNo: gNo, 
+          schoolCode: sc, 
+          updatedBy: state.user.email,
+          data: updateData 
+        };
         const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
         const result = await res.json();
         
@@ -312,24 +344,27 @@
     });
 
     $('applyCropBtn').addEventListener('click', async () => {
-      if(!state.cropper || !state.currentStudent) return;
+      if (!state.cropper) return;
+      const s = state.currentStudent;
+      const gNo = getVal(s, 'GR No', 'GRNo');
+      const sc = state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : '');
       
-      const canvas = state.cropper.getCroppedCanvas({ width: 600, height: 800 });
-      const base64Img = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+      const canvas = state.cropper.getCroppedCanvas({ width: 400, height: 400 });
+      const base64Image = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
       
       $('cropModal').classList.add('hidden');
-      showOverlay("Uploading Photo", "Saving to Drive...", "loading");
-
-      const payload = {
-        action: 'replaceStudentPhoto',
-        grNo: state.currentStudent['GR No'],
-        schoolCode: state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : ''),
-        updatedBy: state.user.email,
-        image: base64Img,
-        mimeType: 'image/jpeg'
-      };
-
+      showOverlay('Uploading Photo', 'Saving new photo to Drive...');
+      
       try {
+        const payload = { 
+          action: 'replaceStudentPhoto', 
+          grNo: gNo, 
+          schoolCode: sc, 
+          updatedBy: state.user.email,
+          image: base64Image,
+          mimeType: 'image/jpeg'
+        };
+
         const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
         const result = await res.json();
         
