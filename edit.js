@@ -1,11 +1,15 @@
     // Configuration
     const urlParams = new URLSearchParams(window.location.search);
     const passedPortalUrl = urlParams.get('portalApiUrl');
-    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbwqzlbHxHIF5HzvN_6kyOVA_aCds_3wtHNNLNpK1tQl47wwJ8CBIPsDWA2U3qkVpDXJ/exec";
     
-    const API_URL = passedPortalUrl || DEFAULT_API_URL; 
+    // This API_URL points to the certificate-app backend where Verification.gs was deployed
+    const API_URL = "https://script.google.com/macros/s/AKfycbzrcDptT72e1HEen7VxJY9xMi7V2PU_ksS9P5-rUZeavFD1tfH7h1gjrneUB7DPhGZg/exec";
+    
+    // The Central Portal API URL for authentication (read from query string or fallback)
+    const DEFAULT_PORTAL_API_URL = "https://script.google.com/macros/s/AKfycbwqzlbHxHIF5HzvN_6kyOVA_aCds_3wtHNNLNpK1tQl47wwJ8CBIPsDWA2U3qkVpDXJ/exec"; 
+    
     const CONFIG = {
-      portalApiBaseUrl: passedPortalUrl || DEFAULT_API_URL,
+      portalApiBaseUrl: passedPortalUrl || DEFAULT_PORTAL_API_URL,
       portalAppId: "enrollment-app" 
     };
     const STORAGE_KEY = "ibfs_enrollment_user";
