@@ -192,15 +192,24 @@
         
         <!-- Left: Photo & Quick Actions -->
         <div class="w-full md:w-1/3 flex flex-col items-center gap-4">
-          <div class="relative group w-48 h-56 rounded-2xl overflow-hidden border-4 border-slate-100 shadow-md">
+          <div class="relative group w-48 h-56 rounded-2xl overflow-hidden border-4 border-slate-100 shadow-md cursor-pointer" onclick="$('photoInput').click()">
             <img id="stuPhoto" src="" alt="Student Photo" class="w-full h-full object-cover bg-slate-200">
-            <div class="absolute inset-0 bg-black/50 hidden group-hover:flex flex-col items-center justify-center transition-all cursor-pointer" onclick="$('photoInput').click()">
+            <div class="absolute inset-0 bg-black/50 hidden group-hover:flex flex-col items-center justify-center transition-all">
               <div class="text-white text-center">
                 <i class="fas fa-camera text-2xl mb-1"></i>
                 <p class="text-xs font-bold">Replace Photo</p>
               </div>
             </div>
             <input type="file" id="photoInput" accept="image/*" class="hidden">
+          </div>
+          
+          <div class="flex gap-2 w-48 mt-2">
+            <button type="button" onclick="$('photoInput').click()" class="flex-1 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded-xl border border-brand-200 transition-colors flex items-center justify-center gap-2 text-sm" title="Upload New">
+              <i class="fas fa-upload"></i> New
+            </button>
+            <button type="button" onclick="openManualCrop()" class="flex-1 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold rounded-xl border border-orange-200 transition-colors flex items-center justify-center gap-2 text-sm" title="Crop Existing">
+              <i class="fas fa-crop"></i> Crop
+            </button>
           </div>
           
           <div class="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
@@ -231,9 +240,11 @@
               <div>
                 <label class="block text-xs font-bold text-slate-500 mb-1">Status</label>
                 <select id="e_status" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
-                  <option value="Admitted">Admitted</option>
-                  <option value="Left">Left</option>
-                  <option value="Struck Off">Struck Off</option>
+                  <option value="New Admission">New Admission</option>
+                  <option value="Return">Return</option>
+                  <option value="Promoted">Promoted</option>
+                  <option value="Drop Out">Drop Out</option>
+                  <option value="Pass Out">Pass Out</option>
                 </select>
               </div>
             </div>
@@ -268,16 +279,15 @@
               <div>
                 <label class="block text-xs font-bold text-slate-500 mb-1">Current Class</label>
                 <select id="e_class" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
-                  <option value="Nursery">Nursery</option>
-                  <option value="KG">KG</option>
-                  <option value="First Class">First Class</option>
-                  <option value="Second Class">Second Class</option>
-                  <option value="Third Class">Third Class</option>
-                  <option value="Fourth Class">Fourth Class</option>
-                  <option value="Fifth Class">Fifth Class</option>
-                  <option value="Sixth Class">Sixth Class</option>
-                  <option value="Seventh Class">Seventh Class</option>
-                  <option value="Eighth Class">Eighth Class</option>
+                  <option value="Kachi">Kachi</option>
+                  <option value="I">I</option>
+                  <option value="II">II</option>
+                  <option value="III">III</option>
+                  <option value="IV">IV</option>
+                  <option value="V">V</option>
+                  <option value="VI">VI</option>
+                  <option value="VII">VII</option>
+                  <option value="VIII">VIII</option>
                 </select>
               </div>
             </div>

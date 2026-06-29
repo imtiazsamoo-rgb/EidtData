@@ -370,7 +370,7 @@
         
         if (result.status === 'success') {
           showOverlay("Success", "Photo replaced successfully.", "success");
-          $('stuPhoto').src = "data:image/jpeg;base64," + base64Img;
+          $('stuPhoto').src = "data:image/jpeg;base64," + base64Image;
           $('photoStatusBadge').innerText = "Replaced";
           $('photoStatusBadge').className = "font-bold text-blue-600";
           loadList(); // refresh list
@@ -381,3 +381,20 @@
         showOverlay("Error", "Network error.", "error");
       }
     });
+
+    window.openManualCrop = function() {
+      const img = $('stuPhoto');
+      if (!img.src || img.src === window.location.href || img.src.includes('placeholder')) {
+         alert('No photo available to crop.');
+         return;
+      }
+      $('cropperImage').src = img.src;
+      $('cropperImage').classList.remove('hidden');
+      $('cropModal').classList.remove('hidden');
+      
+      if(state.cropper) state.cropper.destroy();
+      state.cropper = new Cropper($('cropperImage'), {
+        aspectRatio: 3 / 4,
+        viewMode: 1
+      });
+    };
