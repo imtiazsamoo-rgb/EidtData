@@ -1,9 +1,11 @@
     // Configuration
-    // We will use the same Apps Script URL that certificate-app uses, assuming you will deploy Code.gs
-    // If you haven't deployed it yet, you'll need to update this URL.
-    const API_URL = "https://script.google.com/macros/s/AKfycbxma7ltR4xYcIws1mLxMmZBXGgnxAwUHJszD9zC6-GMwMmJ837MjK-n1iSDLalOLOIt/exec"; // Placeholder for the new backend
+    const urlParams = new URLSearchParams(window.location.search);
+    const passedPortalUrl = urlParams.get('portalApiUrl');
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbwqzlbHxHIF5HzvN_6kyOVA_aCds_3wtHNNLNpK1tQl47wwJ8CBIPsDWA2U3qkVpDXJ/exec";
+    
+    const API_URL = passedPortalUrl || DEFAULT_API_URL; 
     const CONFIG = {
-      portalApiBaseUrl: "https://script.google.com/macros/s/AKfycbxma7ltR4xYcIws1mLxMmZBXGgnxAwUHJszD9zC6-GMwMmJ837MjK-n1iSDLalOLOIt/exec",
+      portalApiBaseUrl: passedPortalUrl || DEFAULT_API_URL,
       portalAppId: "enrollment-app" 
     };
     const STORAGE_KEY = "ibfs_enrollment_user";
