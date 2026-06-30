@@ -145,9 +145,15 @@
 
     function getThumb(url) {
       if(!url) return '';
+      let id = '';
       if(url.includes('drive.google.com/file/d/')){
-        const id = url.split('/d/')[1].split('/')[0];
-        return 'https://drive.google.com/thumbnail?id=' + id + '&sz=w200';
+        id = url.split('/d/')[1].split('/')[0];
+      } else if (url.includes('id=')) {
+        id = new URL(url).searchParams.get('id');
+      }
+      
+      if (id) {
+        return 'https://drive.google.com/uc?export=view&id=' + id;
       }
       return url;
     }
@@ -181,7 +187,12 @@
         return;
       }
 
+      const filterCls = $('filterClass').value;
+
       state.students.forEach((s, idx) => {
+        const cClass = (s['CurrentClass'] || '').trim();
+        if (filterCls && cClass !== filterCls) return; // Strict exact match
+
         const vStatus = s['Verification_Status'] || 'Pending';
         const vColor = vStatus === 'Verified' ? 'bg-green-100 text-green-700' : (vStatus === 'Corrected' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700');
         
