@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IBFS Enrollment Portal</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IBFS Certificate Verification & Issuance</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,17 +12,7 @@
       theme: {
         extend: {
           fontFamily: { sans: ['Outfit', 'sans-serif'] },
-          colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              900: '#1e3a8a',
-            },
-            dark: '#0f172a'
-          }
+          colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } }
         }
       }
     }
@@ -30,287 +20,145 @@
   <style>
     body { font-family: 'Outfit', sans-serif; background: #f8fafc; color: #334155; }
     .hidden { display: none !important; }
-    .glass-panel {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-    }
-    
-    /* Animations */
+    .glass-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
     .fade-in { animation: fadeIn 0.4s ease-out forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
 <body class="antialiased selection:bg-brand-500 selection:text-white">
 
   <!-- LOGIN SCREEN -->
-  <div id="loginView" class="min-h-screen flex items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50">
-    <div class="glass-panel w-full max-w-md p-8 md:p-10 rounded-3xl fade-in relative overflow-hidden">
-      <!-- Decorative Elements -->
-      <div class="absolute -top-16 -right-16 w-32 h-32 bg-brand-100 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-      <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-indigo-100 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-
-      <div class="relative z-10">
-        <div class="text-center mb-10">
-          <div class="w-16 h-16 bg-gradient-to-tr from-brand-500 to-indigo-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg transform -rotate-3">
-            <i class="fas fa-user-graduate text-3xl"></i>
-          </div>
-          <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">IBFS Enrollment</h2>
-          <p class="text-slate-500 mt-2 font-medium">Student Admission & Registration</p>
-        </div>
-        
-        <div id="loginMessage" class="mb-4 text-center text-sm font-semibold"></div>
-        
-        <div class="space-y-5">
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
-            <input id="emailInput" type="email" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition-all" placeholder="user@ibfs.edu.pk">
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
-            <input id="passwordInput" type="password" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition-all" placeholder="••••••••">
-          </div>
-          <button id="loginBtn" class="w-full bg-slate-900 hover:bg-brand-600 text-white font-bold py-4 rounded-xl transition-all shadow-md transform hover:-translate-y-0.5 mt-4">
-            Sign In
-          </button>
-        </div>
+  <div id="loginView" class="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+    <div class="glass-panel w-full max-w-md p-8 md:p-10 fade-in text-center">
+      <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-5 text-3xl">
+        <i class="fas fa-certificate"></i>
       </div>
+      <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Certificate App</h2>
+      <p class="text-slate-500 mt-2 font-medium">Please login via Central Portal</p>
+      <div id="loginMessage" class="mt-4 text-sm font-semibold p-3 rounded-lg bg-blue-50 text-blue-600">Waiting for authentication...</div>
     </div>
   </div>
 
   <!-- APP SHELL -->
-  <div id="appView" class="hidden min-h-screen flex bg-slate-50">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="w-72 bg-dark text-white fixed inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-20 shadow-2xl flex flex-col">
-      <div class="p-6 border-b border-slate-800 flex items-center gap-4">
-        <div class="w-12 h-12 bg-brand-600 rounded-xl flex items-center justify-center text-xl shadow-lg">
-          <i class="fas fa-user-graduate"></i>
+  <div id="appView" class="hidden min-h-screen flex flex-col bg-slate-50">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-10 px-6 h-20 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center text-lg">
+          <i class="fas fa-certificate"></i>
         </div>
         <div>
-          <h1 class="font-bold text-lg leading-tight">Enrollment</h1>
-          <p class="text-slate-400 text-xs">IBFS System</p>
+          <h2 class="text-xl font-extrabold text-slate-800">Leaving Certificates</h2>
+          <p class="text-xs text-slate-500 font-medium">Verify & Issue</p>
         </div>
       </div>
       
-      <div class="p-6 flex-1 overflow-y-auto">
-        <div class="bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-700/50">
-          <div id="sideUserName" class="font-bold text-sm text-slate-200 truncate">Loading...</div>
-          <div id="sideUserMeta" class="text-xs text-brand-400 font-semibold uppercase tracking-wider mt-1">...</div>
+      <div class="flex items-center gap-4">
+        <div class="bg-brand-50 text-brand-700 px-4 py-2 rounded-full font-bold text-sm border border-brand-100 shadow-sm">
+          <i class="fas fa-user-circle mr-1"></i> <span id="userNameDisplay">User</span> (<span id="userRoleDisplay">Role</span>)
         </div>
-
-        <nav class="space-y-1.5">
-          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-medium transition-colors">
-            <i class="fas fa-home w-5"></i> Dashboard
-          </button>
-          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
-            <i class="fas fa-plus-circle w-5"></i> New Admission
-          </button>
-          <button onclick="alert('Student Directory module is coming soon!')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
-            <i class="fas fa-users w-5"></i> Student Directory
-          </button>
-          <a href="edit.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
-            <i class="fas fa-edit w-5"></i> Edit & Verify Records
-          </a>
-          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
-            <i class="fas fa-chart-pie w-5"></i> Reports
-          </button>
-        </nav>
-      </div>
-      
-      <div class="p-6 border-t border-slate-800">
-        <button id="logoutBtn" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 font-bold transition-colors">
-          <i class="fas fa-sign-out-alt"></i> Sign Out
+        <button id="logoutBtn" class="text-slate-500 hover:text-red-600 bg-slate-100 hover:bg-red-50 w-10 h-10 rounded-full flex items-center justify-center transition-colors">
+          <i class="fas fa-sign-out-alt"></i>
         </button>
       </div>
-    </aside>
+    </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 lg:ml-72 flex flex-col min-h-screen transition-all">
-      <!-- Topbar -->
-      <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10 px-6 h-20 flex items-center justify-between shadow-sm">
-        <div class="flex items-center gap-4">
-          <button id="sidebarToggle" class="lg:hidden w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors">
-            <i class="fas fa-bars text-lg"></i>
+    <main class="flex-1 p-6 lg:p-10 max-w-5xl mx-auto w-full fade-in flex flex-col md:flex-row gap-8">
+      
+      <!-- Verification Form -->
+      <div class="w-full md:w-1/2 flex flex-col gap-6">
+        <div class="glass-panel p-6 lg:p-8">
+          <h3 class="text-xl font-extrabold text-slate-800 mb-2">Student Verification</h3>
+          <p class="text-sm text-slate-500 mb-6">Enter details exactly as they appear on the admission form to verify against the master database.</p>
+          
+          <form id="verifyForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-1.5">G.R. No (Required)</label>
+              <input id="vfGrNo" type="text" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-1.5">Student Name</label>
+              <input id="vfName" type="text" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-slate-700 mb-1.5">Father's Name</label>
+              <input id="vfFather" type="text" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-bold text-slate-700 mb-1.5">Date of Birth</label>
+                <input id="vfDob" type="date" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-bold text-slate-700 mb-1.5">Current Class</label>
+                <input id="vfClass" type="text" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm" placeholder="e.g. Eighth Class">
+              </div>
+            </div>
+            
+            <button type="submit" id="verifyBtn" class="w-full bg-slate-900 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-md flex justify-center items-center gap-2 mt-4">
+              <i class="fas fa-search"></i> Verify Student Data
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Feedback & Action Area -->
+      <div class="w-full md:w-1/2 flex flex-col gap-6">
+        
+        <div id="feedbackBox" class="glass-panel p-6 lg:p-8 hidden">
+          <div id="feedbackIcon" class="w-12 h-12 rounded-full flex items-center justify-center text-xl mb-4"></div>
+          <h3 id="feedbackTitle" class="text-xl font-extrabold text-slate-800 mb-2">Verification Status</h3>
+          <div id="feedbackMessage" class="text-sm font-medium mb-4"></div>
+          <ul id="mismatchList" class="text-sm text-red-600 list-disc list-inside mb-4 space-y-1 hidden"></ul>
+          
+          <button id="generateBtn" class="hidden w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md flex justify-center items-center gap-2">
+            <i class="fas fa-download"></i> Generate & Download Certificate (PDF)
           </button>
-          <div>
-            <h2 class="text-2xl font-extrabold text-slate-800">Dashboard</h2>
-            <p class="text-sm text-slate-500 font-medium">Overview of admissions and enrollments</p>
-          </div>
-        </div>
-        
-        <div class="flex items-center gap-3">
-          <div class="hidden md:flex items-center gap-2 bg-brand-50 text-brand-700 px-4 py-2 rounded-full font-bold text-sm border border-brand-100 shadow-sm">
-            <i class="fas fa-school"></i>
-            <span id="currentSchool">Campus: All</span>
-          </div>
-        </div>
-      </header>
-
-      <!-- Dashboard Content -->
-      <div class="p-6 lg:p-8 flex-1">
-        
-        <!-- Stats Row -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 fade-in">
-          <div class="glass-panel p-6 rounded-3xl">
-            <div class="flex justify-between items-start mb-4">
-              <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-users"></i></div>
-              <span class="text-xs font-bold px-2 py-1 bg-green-100 text-green-700 rounded-full">+12%</span>
-            </div>
-            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Total Students</p>
-            <h3 id="dashTotalStudents" class="text-3xl font-extrabold text-slate-800 mt-1">1,248</h3>
-          </div>
-          
-          <div class="glass-panel p-6 rounded-3xl" style="animation-delay: 50ms;">
-            <div class="flex justify-between items-start mb-4">
-              <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-user-plus"></i></div>
-              <span class="text-xs font-bold px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">This Month</span>
-            </div>
-            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">New Admissions</p>
-            <h3 class="text-3xl font-extrabold text-slate-800 mt-1">84</h3>
-          </div>
-          
-          <div class="glass-panel p-6 rounded-3xl" style="animation-delay: 100ms;">
-            <div class="flex justify-between items-start mb-4">
-              <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-clock"></i></div>
-            </div>
-            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Pending Approvals</p>
-            <h3 id="dashPending" class="text-3xl font-extrabold text-slate-800 mt-1">12</h3>
-          </div>
-          
-          <div class="glass-panel p-6 rounded-3xl" style="animation-delay: 150ms;">
-            <div class="flex justify-between items-start mb-4">
-              <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-file-invoice-dollar"></i></div>
-            </div>
-            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Fee Collection</p>
-            <h3 class="text-3xl font-extrabold text-slate-800 mt-1">94%</h3>
-          </div>
-        </div>
-
-        <!-- Recent Enrollments Table -->
-        <div class="glass-panel rounded-3xl overflow-hidden fade-in" style="animation-delay: 200ms;">
-          <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
-            <h3 class="text-lg font-bold text-slate-800">Recent Enrollments</h3>
-            <button class="text-brand-600 hover:text-brand-800 font-semibold text-sm transition-colors">View All <i class="fas fa-arrow-right ml-1"></i></button>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                  <th class="p-4 font-bold">Student Name</th>
-                  <th class="p-4 font-bold">Grade / Class</th>
-                  <th class="p-4 font-bold">Date</th>
-                  <th class="p-4 font-bold">Status</th>
-                  <th class="p-4 font-bold text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100 bg-white">
-                <tr class="hover:bg-slate-50 transition-colors">
-                  <td class="p-4">
-                    <div class="font-bold text-slate-800">Aisha Khan</div>
-                    <div class="text-xs text-slate-500">ID: STU-8821</div>
-                  </td>
-                  <td class="p-4 font-medium text-slate-700">Grade 5 - Section A</td>
-                  <td class="p-4 text-sm text-slate-600">Oct 24, 2026</td>
-                  <td class="p-4"><span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">Admitted</span></td>
-                  <td class="p-4 text-right"><button class="text-brand-600 hover:bg-brand-50 p-2 rounded-lg transition-colors"><i class="fas fa-edit"></i></button></td>
-                </tr>
-                <tr class="hover:bg-slate-50 transition-colors">
-                  <td class="p-4">
-                    <div class="font-bold text-slate-800">Zayn Malik</div>
-                    <div class="text-xs text-slate-500">ID: STU-8822</div>
-                  </td>
-                  <td class="p-4 font-medium text-slate-700">Grade 8 - Section B</td>
-                  <td class="p-4 text-sm text-slate-600">Oct 24, 2026</td>
-                  <td class="p-4"><span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">Pending Docs</span></td>
-                  <td class="p-4 text-right"><button class="text-brand-600 hover:bg-brand-50 p-2 rounded-lg transition-colors"><i class="fas fa-edit"></i></button></td>
-                </tr>
-                <tr class="hover:bg-slate-50 transition-colors">
-                  <td class="p-4">
-                    <div class="font-bold text-slate-800">Fatima Ahmed</div>
-                    <div class="text-xs text-slate-500">ID: STU-8823</div>
-                  </td>
-                  <td class="p-4 font-medium text-slate-700">Grade 3 - Section A</td>
-                  <td class="p-4 text-sm text-slate-600">Oct 23, 2026</td>
-                  <td class="p-4"><span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">Admitted</span></td>
-                  <td class="p-4 text-right"><button class="text-brand-600 hover:bg-brand-50 p-2 rounded-lg transition-colors"><i class="fas fa-edit"></i></button></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <div id="downloadStatus" class="hidden mt-4 text-sm font-bold text-center text-slate-600"></div>
         </div>
 
       </div>
+
     </main>
   </div>
 
   <script>
-    // SSO & Portal Configuration
-    const CONFIG = {
-      // API url for central integration
-      apiBaseUrl: "https://script.google.com/macros/s/AKfycbzrcDptT72e1HEen7VxJY9xMi7V2PU_ksS9P5-rUZeavFD1tfH7h1gjrneUB7DPhGZg/exec",
-      portalApiBaseUrl: "https://script.google.com/macros/s/AKfycbxma7ltR4xYcIws1mLxMmZBXGgnxAwUHJszD9zC6-GMwMmJ837MjK-n1iSDLalOLOIt/exec",
-      portalAppId: "enrollment-app" // IMPORTANT: Must match the Central Portal DB
-    };
-    const ENROLLMENT_STORAGE_KEY = "ibfs_enrollment_user";
+    // --- Configuration ---
+    const API_URL = "https://script.google.com/macros/s/AKfycbzrcDptT72e1HEen7VxJY9xMi7V2PU_ksS9P5-rUZeavFD1tfH7h1gjrneUB7DPhGZg/exec"; 
     
-    let state = { user: null };
+    const CONFIG = {
+      portalApiBaseUrl: "https://script.google.com/macros/s/AKfycbxma7ltR4xYcIws1mLxMmZBXGgnxAwUHJszD9zC6-GMwMmJ837MjK-n1iSDLalOLOIt/exec",
+      portalAppId: "certificate-app"
+    };
+    const STORAGE_KEY = "ibfs_cert_app_user";
+    let state = { user: null, verifiedStudentData: null };
 
-    // Elements
     const $ = id => document.getElementById(id);
-    const loginView = $('loginView');
-    const appView = $('appView');
-    const msgBox = $('loginMessage');
+    const box = $('feedbackBox');
+    const fIcon = $('feedbackIcon');
+    const fTitle = $('feedbackTitle');
+    const fMsg = $('feedbackMessage');
+    const mList = $('mismatchList');
+    const genBtn = $('generateBtn');
+    const dlStatus = $('downloadStatus');
 
-    // Events
-    $('loginBtn').addEventListener('click', handleLocalLogin);
+    $('verifyForm').addEventListener('submit', handleVerify);
+    $('generateBtn').addEventListener('click', handleIssue);
     $('logoutBtn').addEventListener('click', handleLogout);
-    $('sidebarToggle').addEventListener('click', () => {
-      const sb = $('sidebar');
-      if (sb.classList.contains('-translate-x-full')) {
-        sb.classList.remove('-translate-x-full');
-      } else {
-        sb.classList.add('-translate-x-full');
-      }
-    });
 
-    // Helpers
-    function showMsg(text, type) {
-      msgBox.innerText = text;
-      msgBox.className = `mb-4 text-sm font-bold text-center p-3 rounded-xl ${type === 'err' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-green-50 text-green-600 border border-green-200'}`;
-    }
-
-    async function portalPost(payload) {
-      const params = new URLSearchParams(window.location.search);
-      const portalApiUrl = params.get("portalApiUrl") || CONFIG.portalApiBaseUrl;
-      const res = await fetch(portalApiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload || {})
-      });
-      return await res.json();
-    }
-
-    // Auth Flows
     async function init() {
-      // 1. Check if launched from Portal via iframe SSO token
       const params = new URLSearchParams(window.location.search);
       const token = params.get("token");
       
       if (token) {
         await loginWithPortalToken(token);
       } else {
-        // 2. Check local storage
-        const saved = localStorage.getItem(ENROLLMENT_STORAGE_KEY);
+        const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           state.user = JSON.parse(saved);
           renderApp();
+        } else {
+          $('loginMessage').innerText = "Access denied. No session token found. Please open this app from the Central Portal.";
+          $('loginMessage').className = "mt-4 text-sm font-semibold p-3 rounded-lg bg-red-50 text-red-600";
         }
       }
     }
@@ -318,108 +166,148 @@
     async function loginWithPortalToken(token) {
       const appId = new URLSearchParams(window.location.search).get("appId") || CONFIG.portalAppId;
       try {
-        showMsg("Validating portal session...", "ok");
-        $('loginBtn').disabled = true;
-        
-        const result = await portalPost({ action: "verifyAccess", token, appId });
-        
-        if (result && result.status === "success" && result.allowed) {
-          state.user = result.user || result;
-          localStorage.setItem(ENROLLMENT_STORAGE_KEY, JSON.stringify(state.user));
-          renderApp();
-        } else {
-          showMsg(result.message || "Portal access denied.", "err");
-        }
-      } catch (err) {
-        showMsg("Portal connection failed.", "err");
-      } finally {
-        $('loginBtn').disabled = false;
-      }
-    }
-
-    async function handleLocalLogin() {
-      const email = $('emailInput').value.trim();
-      const pwd = $('passwordInput').value.trim();
-      if(!email || !pwd) return showMsg("Email and password required", "err");
-      
-      // Fallback local API login (if running outside portal)
-      try {
-        showMsg("Authenticating...", "ok");
-        $('loginBtn').disabled = true;
-        
-        const q = new URLSearchParams({ action: "login", email, password: pwd });
-        const res = await fetch(`${CONFIG.apiBaseUrl}?${q.toString()}`);
-        const result = await res.json();
-        
-        if(result.success || result.status === "success") {
-          state.user = result.user || result;
-          localStorage.setItem(ENROLLMENT_STORAGE_KEY, JSON.stringify(state.user));
-          renderApp();
-        } else {
-          showMsg("Invalid credentials.", "err");
-        }
-      } catch(e) {
-        showMsg("Network error.", "err");
-      } finally {
-        $('loginBtn').disabled = false;
-      }
-    }
-
-    function handleLogout() {
-      localStorage.removeItem(ENROLLMENT_STORAGE_KEY);
-      window.history.replaceState({}, "", window.location.origin + window.location.pathname);
-      window.location.reload();
-    }
-
-    function renderApp() {
-      loginView.classList.add('hidden');
-      appView.classList.remove('hidden');
-      
-      const u = state.user;
-      $('sideUserName').innerText = u.name || (u.email ? u.email.split('@')[0] : "User");
-      $('sideUserMeta').innerText = u.appRole || u.role || "User";
-      
-      // Display scope (e.g. school code)
-      if (u.scope && u.scope.includes('school=')) {
-        $('currentSchool').innerText = `Campus: ${u.scope.split('school=')[1].split(',')[0]}`;
-      } else if (u.schoolCode) {
-        $('currentSchool').innerText = `Campus: ${u.schoolCode}`;
-      } else {
-        $('currentSchool').innerText = `Campus: All`;
-      }
-      
-      loadDashboardStats();
-    }
-
-    async function loadDashboardStats() {
-      const u = state.user;
-      const schoolCode = u.schoolCode || (u.scope ? u.scope.replace('school=','') : '');
-      const payload = {
-        action: "getVerificationList",
-        schoolCode: schoolCode,
-        class: "",
-        status: "",
-        query: "",
-        user: u.email
-      };
-      
-      try {
-        const res = await fetch(CONFIG.apiBaseUrl, { 
-          method: 'POST', 
-          body: JSON.stringify(payload) 
+        const portalApiUrl = new URLSearchParams(window.location.search).get("portalApiUrl") || CONFIG.portalApiBaseUrl;
+        const res = await fetch(portalApiUrl, {
+          method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "verifyAccess", token, appId })
         });
         const result = await res.json();
         
-        if (result.status === 'success' && result.counts) {
-          $('dashTotalStudents').innerText = result.counts.total || 0;
-          $('dashPending').innerText = result.counts.pending || 0;
+        if (result && result.status === "success" && result.allowed) {
+          state.user = result.user || result;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state.user));
+          renderApp();
+        } else {
+          $('loginMessage').innerText = result.message || "Portal access denied.";
+          $('loginMessage').className = "mt-4 text-sm font-semibold p-3 rounded-lg bg-red-50 text-red-600";
         }
-      } catch(e) {
-        console.error('Failed to load dashboard stats', e);
+      } catch (err) {
+        $('loginMessage').innerText = "Portal connection failed.";
       }
     }
 
-    // Start
+    function renderApp() {
+      $('loginView').classList.add('hidden');
+      $('appView').classList.remove('hidden');
+      const u = state.user;
+      $('userNameDisplay').innerText = u.name || (u.email ? u.email.split('@')[0] : "User");
+      $('userRoleDisplay').innerText = u.appRole || u.role || "User";
+    }
+
+    function handleLogout() {
+      localStorage.removeItem(STORAGE_KEY);
+      window.location.reload();
+    }
+
+    async function handleVerify(e) {
+      e.preventDefault();
+      const payload = {
+        action: 'verify',
+        grNo: $('vfGrNo').value.trim(),
+        name: $('vfName').value.trim(),
+        fatherName: $('vfFather').value.trim(),
+        dob: $('vfDob').value.trim(),
+        currentClass: $('vfClass').value.trim(),
+        schoolCode: state.user.schoolCode || state.user.scope ? state.user.scope.replace('school=','') : '',
+        role: state.user.appRole || state.user.role
+      };
+
+      const btn = $('verifyBtn');
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Verifying...`;
+      box.classList.add('hidden');
+      dlStatus.classList.add('hidden');
+
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const result = await res.json();
+        showFeedback(result);
+      } catch (err) {
+        showFeedback({ status: 'error', message: 'API Connection failed.' });
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fas fa-search"></i> Verify Student Data`;
+      }
+    }
+
+    function showFeedback(result) {
+      box.classList.remove('hidden');
+      mList.classList.add('hidden');
+      genBtn.classList.add('hidden');
+      mList.innerHTML = '';
+
+      if (result.status === 'success') {
+        fIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-4 bg-green-100 text-green-600';
+        fIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        fTitle.innerText = "Data Verified Successfully!";
+        fTitle.className = "text-xl font-extrabold text-green-700 mb-2";
+        fMsg.innerText = "All fields match our database records. You can now download the PDF certificate.";
+        fMsg.className = "text-sm font-medium mb-4 text-green-600";
+        genBtn.classList.remove('hidden');
+        state.verifiedStudentData = result.data;
+      } else {
+        fIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-4 bg-red-100 text-red-600';
+        fIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        fTitle.innerText = "Verification Failed";
+        fTitle.className = "text-xl font-extrabold text-red-700 mb-2";
+        fMsg.innerText = result.message || "The following fields do not match our database records:";
+        fMsg.className = "text-sm font-medium mb-4 text-red-600";
+        
+        if (result.mismatches && result.mismatches.length > 0) {
+          mList.classList.remove('hidden');
+          result.mismatches.forEach(m => {
+            const li = document.createElement('li');
+            li.innerText = m;
+            mList.appendChild(li);
+          });
+        }
+      }
+    }
+
+    async function handleIssue() {
+      if (!state.verifiedStudentData) return;
+      const payload = {
+        action: 'issue',
+        grNo: state.verifiedStudentData['GR No'] || $('vfGrNo').value.trim(),
+        userEmail: state.user.email || 'Unknown User',
+        studentData: state.verifiedStudentData
+      };
+
+      genBtn.disabled = true;
+      genBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generating PDF... (This may take a moment)`;
+      dlStatus.classList.remove('hidden');
+      dlStatus.innerText = "Requesting PDF generation from server...";
+      dlStatus.className = "mt-4 text-sm font-bold text-center text-blue-600";
+
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const result = await res.json();
+        
+        if (result.status === 'success' && result.pdfBase64) {
+          dlStatus.innerText = "Download Starting...";
+          dlStatus.className = "mt-4 text-sm font-bold text-center text-green-600";
+          
+          const a = document.createElement('a');
+          a.href = "data:application/pdf;base64," + result.pdfBase64;
+          a.download = result.filename || "Certificate.pdf";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          
+          setTimeout(() => { dlStatus.innerText = "PDF Downloaded successfully!"; }, 1000);
+        } else {
+          dlStatus.innerText = "Failed to generate certificate: " + result.message;
+          dlStatus.className = "mt-4 text-sm font-bold text-center text-red-600";
+        }
+      } catch (err) {
+        dlStatus.innerText = "Network error while generating certificate.";
+        dlStatus.className = "mt-4 text-sm font-bold text-center text-red-600";
+      } finally {
+        genBtn.disabled = false;
+        genBtn.innerHTML = `<i class="fas fa-download"></i> Generate & Download Certificate (PDF)`;
+      }
+    }
+
     init();
   </script>
 </body>
