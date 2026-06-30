@@ -214,6 +214,9 @@
       state.students.forEach((s, idx) => {
         const cClass = (s['CurrentClass'] || '').trim();
         if (filterCls && cClass !== filterCls) return; // Strict exact match
+        
+        const sStatus = (s['Status'] || '').trim().toLowerCase().replace(/\s/g, '');
+        if (sStatus === 'dropout' || sStatus === 'passout') return;
 
         const vStatus = s['Verification_Status'] || 'Pending';
         const vColor = vStatus === 'Verified' ? 'bg-green-100 text-green-700' : (vStatus === 'Corrected' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700');
@@ -267,8 +270,7 @@
       $('e_contact').value = s['ParentContact'] || '';
       const doa = s['DateOfAdmission'];
       $('e_doa').value = doa ? new Date(doa).toISOString().split('T')[0] : '';
-      $('e_address').value = s['ResidentialAddress'] || '';
-      $('e_village').value = getVal(s, 'VillageCity', 'Village/City', 'Village');
+      $('e_address').value = getVal(s, 'ResidentialAddress', 'VillageCity', 'Village/City', 'Village');
       $('e_uc').value = getVal(s, 'UC', 'UnionCouncil');
       $('e_taluka').value = getVal(s, 'Taluka', 'Tehsil');
       $('e_district').value = getVal(s, 'District');
@@ -319,8 +321,7 @@
       updateData['BFormNo'] = $('e_bform').value.trim();
       updateData['ParentContact'] = $('e_contact').value.trim();
       updateData['DateOfAdmission'] = $('e_doa').value;
-      updateData['ResidentialAddress'] = $('e_address').value.trim();
-      updateData[getRealKey(s, 'VillageCity') || 'Village/City'] = $('e_village').value.trim();
+      updateData[getRealKey(s, 'ResidentialAddress') || 'ResidentialAddress'] = $('e_address').value.trim();
       updateData[getRealKey(s, 'UC') || 'UC'] = $('e_uc').value.trim();
       updateData[getRealKey(s, 'Taluka') || 'Taluka'] = $('e_taluka').value.trim();
       updateData[getRealKey(s, 'District') || 'District'] = $('e_district').value.trim();
