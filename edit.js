@@ -275,6 +275,7 @@
       const dob = s['DOB'];
       $('e_dob').value = toDDMMYYYY(dob);
       $('e_class').value = cClass;
+      $('e_section').value = s['Section'] || '';
       $('e_bform').value = s['BFormNo'] || '';
       $('e_gender').value = s['Gender'] || '';
       $('e_status').value = s['Status'] || 'Admitted';
@@ -329,6 +330,7 @@
       updateData['ParentCNIC'] = $('e_cnic').value.trim();
       updateData['DOB'] = $('e_dob').value;
       updateData['CurrentClass'] = $('e_class').value.trim();
+      updateData['Section'] = $('e_section').value.trim();
       updateData['BFormNo'] = $('e_bform').value.trim();
       updateData['ParentContact'] = $('e_contact').value.trim();
       updateData['DateOfAdmission'] = $('e_doa').value;
