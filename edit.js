@@ -268,6 +268,10 @@
       const doa = s['DateOfAdmission'];
       $('e_doa').value = doa ? new Date(doa).toISOString().split('T')[0] : '';
       $('e_address').value = s['ResidentialAddress'] || '';
+      $('e_village').value = getVal(s, 'VillageCity', 'Village/City', 'Village');
+      $('e_uc').value = getVal(s, 'UC', 'UnionCouncil');
+      $('e_taluka').value = getVal(s, 'Taluka', 'Tehsil');
+      $('e_district').value = getVal(s, 'District');
 
       const vStatus = s['Verification_Status'] || 'Pending';
       $('dataStatusBadge').innerText = vStatus;
@@ -316,6 +320,11 @@
       updateData['ParentContact'] = $('e_contact').value.trim();
       updateData['DateOfAdmission'] = $('e_doa').value;
       updateData['ResidentialAddress'] = $('e_address').value.trim();
+      updateData[getRealKey(s, 'VillageCity') || 'Village/City'] = $('e_village').value.trim();
+      updateData[getRealKey(s, 'UC') || 'UC'] = $('e_uc').value.trim();
+      updateData[getRealKey(s, 'Taluka') || 'Taluka'] = $('e_taluka').value.trim();
+      updateData[getRealKey(s, 'District') || 'District'] = $('e_district').value.trim();
+      updateData['Status'] = $('e_status').value;
 
       const sc = state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : '');
 
