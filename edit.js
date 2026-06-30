@@ -222,7 +222,6 @@
         const sName = s['StudentName'] || '';
         const fName = s['FatherGuardianName'] || '';
         const gNo = s['GRNo'] || '';
-        const cClass = s['CurrentClass'] || '';
         
         const card = document.createElement('div');
         card.className = "glass-panel p-5 rounded-2xl flex gap-4 items-center hover:shadow-lg transition-shadow border border-slate-200 cursor-pointer";
