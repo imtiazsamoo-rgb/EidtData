@@ -37,6 +37,15 @@
   </style>
 </head>
 <body class="antialiased selection:bg-brand-500 selection:text-white" onload="init()">
+  <script>
+    window.onerror = function(msg, url, line, col, error) {
+      var el = document.getElementById('loginMessage');
+      if (el) {
+        el.innerText = "JS Error: " + msg + " at line " + line;
+        el.className = "text-sm font-semibold p-3 rounded-lg bg-red-50 text-red-600 mt-4";
+      }
+    };
+  </script>
 
   <!-- LOGIN SCREEN -->
   <div id="loginView" class="min-h-screen flex items-center justify-center p-6 bg-slate-50">
