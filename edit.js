@@ -15,6 +15,17 @@
     const STORAGE_KEY = "ibfs_enrollment_user";
     
     let state = { user: null, students: [], currentStudent: null, cropper: null };
+    let originalData = [];
+    let currentIndex = -1;
+
+    function toDDMMYYYY(dateStr) {
+      if (!dateStr) return '';
+      if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return String(d.getDate()).padStart(2, '0') + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + d.getFullYear();
+    }
+    
     const $ = id => document.getElementById(id);
 
     // Init
@@ -262,14 +273,14 @@
       $('e_mother').value = s['MotherName'] || '';
       $('e_cnic').value = s['ParentCNIC'] || '';
       const dob = s['DOB'];
-      $('e_dob').value = dob ? new Date(dob).toISOString().split('T')[0] : '';
+      $('e_dob').value = toDDMMYYYY(dob);
       $('e_class').value = cClass;
       $('e_bform').value = s['BFormNo'] || '';
       $('e_gender').value = s['Gender'] || '';
       $('e_status').value = s['Status'] || 'Admitted';
       $('e_contact').value = s['ParentContact'] || '';
       const doa = s['DateOfAdmission'];
-      $('e_doa').value = doa ? new Date(doa).toISOString().split('T')[0] : '';
+      $('e_doa').value = toDDMMYYYY(doa);
       $('e_address').value = getVal(s, 'ResidentialAddress', 'VillageCity', 'Village/City', 'Village');
       $('e_uc').value = getVal(s, 'UC', 'UnionCouncil');
       $('e_taluka').value = getVal(s, 'Taluka', 'Tehsil');
