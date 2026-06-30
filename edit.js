@@ -19,21 +19,42 @@
 
     // Init
     async function init() {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
-      
-      if (token) {
-        await loginWithPortalToken(token);
-      } else {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          state.user = JSON.parse(saved);
-          renderApp();
-          loadDashboard();
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+        
+        if (token) {
+          await loginWithPortalToken(token);
         } else {
-          $('loginMessage').innerText = "Access denied. Please login via Central Portal.";
-          $('loginMessage').className = "text-sm font-semibold p-3 rounded-lg bg-red-50 text-red-600 mt-4";
+          let saved = null;
+          try {
+            saved = localStorage.getItem(STORAGE_KEY);
+          } catch(e) {
+            console.warn("localStorage access denied", e);
+          }
+          
+          if (saved) {
+            try {
+              state.user = JSON.parse(saved);
+            } catch(e) {
+              state.user = null;
+            }
+            
+            if (state.user && typeof state.user === 'object') {
+              renderApp();
+              loadDashboard();
+            } else {
+              throw new Error("Invalid user data");
+            }
+          } else {
+            $('loginMessage').innerText = "Access denied. Please login via Central Portal.";
+            $('loginMessage').className = "text-sm font-semibold p-3 rounded-lg bg-red-50 text-red-600 mt-4";
+          }
         }
+      } catch (err) {
+        console.error("Init error:", err);
+        $('loginMessage').innerText = "Initialization failed. Please clear browser cache or login again.";
+        $('loginMessage').className = "text-sm font-semibold p-3 rounded-lg bg-red-50 text-red-600 mt-4";
       }
     }
 
@@ -60,6 +81,7 @@
     }
 
     function renderApp() {
+      if (!state.user) return;
       $('loginView').classList.add('hidden');
       $('appView').classList.remove('hidden');
       const u = state.user;
