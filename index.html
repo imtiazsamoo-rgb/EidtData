@@ -394,26 +394,28 @@
     async function loadDashboardStats() {
       const u = state.user;
       const schoolCode = u.schoolCode || (u.scope ? u.scope.replace('school=','') : '');
-      const q = new URLSearchParams({
+      const payload = {
         action: "getVerificationList",
         schoolCode: schoolCode,
+        class: "",
+        status: "",
+        query: "",
         user: u.email
-      });
+      };
       
       try {
-        const res = await fetch(`${CONFIG.apiBaseUrl}?${q.toString()}`);
+        const res = await fetch(CONFIG.apiBaseUrl, { 
+          method: 'POST', 
+          body: JSON.stringify(payload) 
+        });
         const result = await res.json();
         
-        if (result.status === 'success' && result.students) {
-          const students = result.students;
-          const total = students.length;
-          const pending = students.filter(s => s['Verification_Status'] === 'Pending' || !s['Verification_Status']).length;
-          
-          $('dashTotalStudents').innerText = total;
-          $('dashPending').innerText = pending;
+        if (result.status === 'success' && result.counts) {
+          $('dashTotalStudents').innerText = result.counts.total || 0;
+          $('dashPending').innerText = result.counts.pending || 0;
         }
-      } catch (e) {
-        console.error("Failed to load stats", e);
+      } catch(e) {
+        console.error('Failed to load dashboard stats', e);
       }
     }
 
