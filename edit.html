@@ -38,10 +38,10 @@
 </head>
 <body class="antialiased selection:bg-brand-500 selection:text-white" onload="init()">
   <!-- GLOBAL LOADER -->
-  <div id="globalLoader" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[9999] flex items-center justify-center">
+  <div id="globalLoader" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[9999] flex items-center justify-center hidden">
     <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center">
       <i class="fas fa-spinner fa-spin text-4xl text-brand-500 mb-3"></i>
-      <p id="loaderText" class="text-slate-700 font-semibold">Checking authentication...</p>
+      <p id="globalLoaderText" class="text-slate-700 font-semibold">Loading...</p>
     </div>
   </div>
 

@@ -1,7 +1,7 @@
     // Global Loader Functions
     function showGlobalLoader(text = "Loading...") {
       const loader = document.getElementById('globalLoader');
-      const loaderText = document.getElementById('loaderText');
+      const loaderText = document.getElementById('globalLoaderText');
       if(loaderText) loaderText.innerText = text;
       if(loader) loader.classList.remove('hidden');
     }
