@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Profile - IBFS Enrollment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
+          colors: {
+            brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' },
+            dark: '#0f172a'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Outfit', sans-serif; background: #f8fafc; color: #334155; }
+    .hidden { display: none !important; }
+    .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08); border: 1px solid rgba(255, 255, 255, 0.5); }
+    .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="antialiased selection:bg-brand-500 selection:text-white" onload="init()">
+
+  <!-- APP SHELL -->
+  <div id="appView" class="hidden min-h-screen flex bg-slate-50">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-dark text-white fixed inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-20 shadow-2xl flex flex-col">
+      <div class="p-6 border-b border-slate-800 flex items-center gap-4">
+        <div class="w-12 h-12 bg-brand-600 rounded-xl flex items-center justify-center text-xl shadow-lg">
+          <i class="fas fa-id-card"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight">Student Profile</h1>
+          <p class="text-slate-400 text-xs">IBFS System</p>
+        </div>
+      </div>
+      
+      <div class="p-6 flex-1 overflow-y-auto">
+        <div class="bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-700/50">
+          <div id="sideUserName" class="font-bold text-sm text-slate-200 truncate">Loading...</div>
+          <div id="sideUserMeta" class="text-xs text-brand-400 font-semibold uppercase tracking-wider mt-1">...</div>
+        </div>
+
+        <nav class="space-y-1.5">
+          <a href="index.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
+            <i class="fas fa-home w-5"></i> Dashboard
+          </a>
+          <a href="edit.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
+            <i class="fas fa-edit w-5"></i> Edit & Verify Records
+          </a>
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-medium transition-colors">
+            <i class="fas fa-user w-5"></i> Profile View
+          </button>
+        </nav>
+      </div>
+      
+      <div class="p-6 border-t border-slate-800">
+        <button id="logoutBtn" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 font-bold transition-colors">
+          <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 lg:ml-72 flex flex-col min-h-screen transition-all">
+      <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10 px-6 h-20 flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-4">
+          <button id="sidebarToggle" class="lg:hidden w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
+            <i class="fas fa-bars text-lg"></i>
+          </button>
+          <div>
+            <h2 class="text-2xl font-extrabold text-slate-800">Student Profile</h2>
+            <p class="text-sm text-slate-500 font-medium">Detailed view of student information</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="hidden md:flex items-center gap-2 bg-brand-50 text-brand-700 px-4 py-2 rounded-full font-bold text-sm border border-brand-100">
+            <i class="fas fa-school"></i>
+            <span id="currentSchool">Loading...</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="p-6 lg:p-8 flex-1 w-full max-w-5xl mx-auto">
+        <div id="loadingIndicator" class="text-center py-20 text-slate-500">
+          <i class="fas fa-spinner fa-spin text-3xl mb-4 text-brand-500"></i>
+          <p>Loading student data...</p>
+        </div>
+        
+        <div id="errorMsg" class="hidden bg-red-50 border border-red-200 text-red-600 p-4 rounded-xl text-center font-semibold mb-6"></div>
+
+        <div id="profileContent" class="hidden fade-in space-y-6">
+          
+          <!-- Header Card -->
+          <div class="glass-panel p-8 rounded-3xl relative overflow-hidden flex flex-col md:flex-row items-center md:items-start gap-8 bg-gradient-to-br from-white to-slate-50">
+            <div class="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-slate-200 shrink-0 shadow-lg border-4 border-white overflow-hidden flex items-center justify-center relative z-10">
+              <img id="p_photo" src="" class="w-full h-full object-cover hidden" alt="Student Photo">
+              <i id="p_photo_placeholder" class="fas fa-user text-5xl text-slate-400"></i>
+            </div>
+            
+            <div class="flex-1 text-center md:text-left z-10 relative">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+                <h1 id="p_name" class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Student Name</h1>
+                <span id="p_vstatus" class="px-4 py-1.5 rounded-full text-sm font-bold shadow-sm inline-block self-center md:self-auto">Status</span>
+              </div>
+              <p id="p_father" class="text-lg text-slate-600 font-medium mb-4">S/O Father Name</p>
+              
+              <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-4">
+                <div class="px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center gap-2">
+                  <i class="fas fa-id-badge text-brand-500"></i>
+                  <span class="text-sm font-bold text-slate-700">GR No: <span id="p_gr" class="text-brand-600">...</span></span>
+                </div>
+                <div class="px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center gap-2">
+                  <i class="fas fa-chalkboard-user text-indigo-500"></i>
+                  <span class="text-sm font-bold text-slate-700">Class: <span id="p_class" class="text-indigo-600">...</span></span>
+                </div>
+                <div class="px-4 py-2 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center gap-2">
+                  <i class="fas fa-venus-mars text-pink-500"></i>
+                  <span class="text-sm font-bold text-slate-700"><span id="p_gender" class="text-pink-600">...</span></span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Decor -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-brand-50 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+          </div>
+
+          <!-- Details Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="glass-panel p-6 rounded-3xl">
+              <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+                <i class="fas fa-info-circle text-brand-500"></i> Personal Information
+              </h3>
+              <div class="space-y-4">
+                <div>
+                  <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Surname / Cast</div>
+                  <div id="p_surname" class="font-semibold text-slate-700">...</div>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Date of Birth</div>
+                  <div id="p_dob" class="font-semibold text-slate-700">...</div>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Mother Name</div>
+                  <div id="p_mother" class="font-semibold text-slate-700">...</div>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">B-Form / CNIC No</div>
+                  <div id="p_bform" class="font-semibold text-slate-700">...</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl">
+              <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+                <i class="fas fa-address-book text-emerald-500"></i> Contact & Address
+              </h3>
+              <div class="space-y-4">
+                <div>
+                  <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Parent Contact</div>
+                  <div id="p_contact" class="font-semibold text-slate-700">...</div>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Residential Address</div>
+                  <div id="p_address" class="font-semibold text-slate-700">...</div>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">UC</div>
+                    <div id="p_uc" class="text-sm font-semibold text-slate-700">...</div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Taluka</div>
+                    <div id="p_taluka" class="text-sm font-semibold text-slate-700">...</div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">District</div>
+                    <div id="p_district" class="text-sm font-semibold text-slate-700">...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl md:col-span-2">
+              <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+                <i class="fas fa-school text-amber-500"></i> Academic Information
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Section</div>
+                  <div id="p_section" class="font-semibold text-slate-700">...</div>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Date of Admission</div>
+                  <div id="p_doa" class="font-semibold text-slate-700">...</div>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Student Status</div>
+                  <div id="p_status" class="font-semibold text-slate-700">...</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          
+          <div class="text-center pt-4">
+             <button onclick="window.print()" class="px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold shadow-md transition-all"><i class="fas fa-print mr-2"></i> Print Profile</button>
+             <button id="editProfileBtn" class="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold shadow-md transition-all ml-3 hidden"><i class="fas fa-edit mr-2"></i> Edit Record</button>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="profile.js"></script>
+</body>
+</html>
