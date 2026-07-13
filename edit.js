@@ -1,3 +1,15 @@
+    // Global Loader Functions
+    function showGlobalLoader(text = "Loading...") {
+      const loader = document.getElementById('globalLoader');
+      const loaderText = document.getElementById('loaderText');
+      if(loaderText) loaderText.innerText = text;
+      if(loader) loader.classList.remove('hidden');
+    }
+    function hideGlobalLoader() {
+      const loader = document.getElementById('globalLoader');
+      if(loader) loader.classList.add('hidden');
+    }
+
     // Configuration
     const urlParams = new URLSearchParams(window.location.search);
     const passedPortalUrl = urlParams.get('portalApiUrl');
@@ -30,6 +42,7 @@
 
     // Init
     async function init() {
+      showGlobalLoader("Verifying session...");
       try {
         const params = new URLSearchParams(window.location.search);
         const token = params.get("token");
@@ -60,12 +73,14 @@
           } else {
             $('loginMessage').innerText = "Access denied. Please login via Central Portal.";
             $('loginMessage').className = "text-sm font-semibold p-3 rounded-lg bg-red-50 text-red-600 mt-4";
+            hideGlobalLoader();
           }
         }
       } catch (err) {
         console.error("Init error:", err);
         $('loginMessage').innerText = "Initialization failed. Please clear browser cache or login again.";
         $('loginMessage').className = "text-sm font-semibold p-3 rounded-lg bg-red-50 text-red-600 mt-4";
+        hideGlobalLoader();
       }
     }
 
@@ -85,9 +100,11 @@
         } else {
           $('loginMessage').innerText = result.message || "Portal access denied.";
           $('loginMessage').className = "text-sm font-semibold p-3 rounded-lg bg-red-50 text-red-600 mt-4";
+          hideGlobalLoader();
         }
       } catch (err) {
         $('loginMessage').innerText = "Portal connection failed.";
+        hideGlobalLoader();
       }
     }
 
@@ -144,6 +161,7 @@
     }
 
     async function loadList() {
+      showGlobalLoader("Loading students data...");
       const btn = $('loadBtn');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Loading...';
@@ -173,6 +191,7 @@
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-search mr-1"></i> Search';
+        hideGlobalLoader();
       }
     }
 

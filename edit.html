@@ -37,6 +37,14 @@
   </style>
 </head>
 <body class="antialiased selection:bg-brand-500 selection:text-white" onload="init()">
+  <!-- GLOBAL LOADER -->
+  <div id="globalLoader" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[9999] flex items-center justify-center">
+    <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center">
+      <i class="fas fa-spinner fa-spin text-4xl text-brand-500 mb-3"></i>
+      <p id="loaderText" class="text-slate-700 font-semibold">Checking authentication...</p>
+    </div>
+  </div>
+
   <script>
     window.onerror = function(msg, url, line, col, error) {
       var el = document.getElementById('loginMessage');
@@ -200,7 +208,7 @@
         
         <!-- Left: Photo & Quick Actions -->
         <div class="w-full md:w-1/3 flex flex-col items-center gap-4">
-          <div class="relative group w-48 h-56 rounded-2xl overflow-hidden border-4 border-slate-100 shadow-md cursor-pointer" onclick="$('photoInput').click()">
+          <label for="photoInput" class="relative group w-48 h-56 rounded-2xl overflow-hidden border-4 border-slate-100 shadow-md cursor-pointer block">
             <img id="stuPhoto" src="" alt="Student Photo" class="w-full h-full object-cover bg-slate-200">
             <div class="absolute inset-0 bg-black/50 hidden group-hover:flex flex-col items-center justify-center transition-all">
               <div class="text-white text-center">
@@ -208,13 +216,13 @@
                 <p class="text-xs font-bold">Replace Photo</p>
               </div>
             </div>
-            <input type="file" id="photoInput" accept="image/*" class="hidden">
-          </div>
+          </label>
+          <input type="file" id="photoInput" accept="image/*" class="hidden">
           
           <div class="flex gap-2 w-48 mt-2">
-            <button type="button" onclick="$('photoInput').click()" class="flex-1 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded-xl border border-brand-200 transition-colors flex items-center justify-center gap-2 text-sm" title="Upload New">
+            <label for="photoInput" class="flex-1 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded-xl border border-brand-200 transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer" title="Upload New">
               <i class="fas fa-upload"></i> New
-            </button>
+            </label>
             <button type="button" onclick="openManualCrop()" class="flex-1 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold rounded-xl border border-orange-200 transition-colors flex items-center justify-center gap-2 text-sm" title="Crop Existing">
               <i class="fas fa-crop"></i> Crop
             </button>
