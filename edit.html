@@ -3,24 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IBFS Enrollment Portal</title>
+  <title>Edit & Verify Records - IBFS Enrollment</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: { sans: ['Outfit', 'sans-serif'] },
           colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              900: '#1e3a8a',
-            },
+            brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' },
             dark: '#0f172a'
           }
         }
@@ -30,58 +25,33 @@
   <style>
     body { font-family: 'Outfit', sans-serif; background: #f8fafc; color: #334155; }
     .hidden { display: none !important; }
-    .glass-panel {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-    }
-    
-    /* Animations */
+    .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08); border: 1px solid rgba(255, 255, 255, 0.5); }
     .fade-in { animation: fadeIn 0.4s ease-out forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .modal-overlay { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); }
+    .cropper-container { width: 100%; max-height: 400px; }
   </style>
 </head>
-<body class="antialiased selection:bg-brand-500 selection:text-white">
+<body class="antialiased selection:bg-brand-500 selection:text-white" onload="init()">
+  <script>
+    window.onerror = function(msg, url, line, col, error) {
+      var el = document.getElementById('loginMessage');
+      if (el) {
+        el.innerText = "JS Error: " + msg + " at line " + line;
+        el.className = "text-sm font-semibold p-3 rounded-lg bg-red-50 text-red-600 mt-4";
+      }
+    };
+  </script>
 
   <!-- LOGIN SCREEN -->
-  <div id="loginView" class="min-h-screen flex items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50">
-    <div class="glass-panel w-full max-w-md p-8 md:p-10 rounded-3xl fade-in relative overflow-hidden">
-      <!-- Decorative Elements -->
-      <div class="absolute -top-16 -right-16 w-32 h-32 bg-brand-100 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-      <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-indigo-100 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-
-      <div class="relative z-10">
-        <div class="text-center mb-10">
-          <div class="w-16 h-16 bg-gradient-to-tr from-brand-500 to-indigo-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg transform -rotate-3">
-            <i class="fas fa-user-graduate text-3xl"></i>
-          </div>
-          <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">IBFS Enrollment</h2>
-          <p class="text-slate-500 mt-2 font-medium">Student Admission & Registration</p>
-        </div>
-        
-        <div id="loginMessage" class="mb-4 text-center text-sm font-semibold"></div>
-        
-        <div class="space-y-5">
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
-            <input id="emailInput" type="email" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition-all" placeholder="user@ibfs.edu.pk">
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
-            <input id="passwordInput" type="password" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition-all" placeholder="••••••••">
-          </div>
-          <button id="loginBtn" class="w-full bg-slate-900 hover:bg-brand-600 text-white font-bold py-4 rounded-xl transition-all shadow-md transform hover:-translate-y-0.5 mt-4">
-            Sign In
-          </button>
-        </div>
-      </div>
+  <div id="loginView" class="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+    <div class="glass-panel w-full max-w-md p-8 rounded-3xl text-center">
+      <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-4">IBFS Verification</h2>
+      <div id="loginMessage" class="text-sm font-semibold p-3 rounded-lg bg-blue-50 text-blue-600">Checking authentication...</div>
     </div>
   </div>
 
@@ -91,10 +61,10 @@
     <aside id="sidebar" class="w-72 bg-dark text-white fixed inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-20 shadow-2xl flex flex-col">
       <div class="p-6 border-b border-slate-800 flex items-center gap-4">
         <div class="w-12 h-12 bg-brand-600 rounded-xl flex items-center justify-center text-xl shadow-lg">
-          <i class="fas fa-user-graduate"></i>
+          <i class="fas fa-user-check"></i>
         </div>
         <div>
-          <h1 class="font-bold text-lg leading-tight">Enrollment</h1>
+          <h1 class="font-bold text-lg leading-tight">Verification</h1>
           <p class="text-slate-400 text-xs">IBFS System</p>
         </div>
       </div>
@@ -106,20 +76,11 @@
         </div>
 
         <nav class="space-y-1.5">
-          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-medium transition-colors">
+          <a href="index.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
             <i class="fas fa-home w-5"></i> Dashboard
-          </button>
-          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
-            <i class="fas fa-plus-circle w-5"></i> New Admission
-          </button>
-          <button onclick="alert('Student Directory module is coming soon!')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
-            <i class="fas fa-users w-5"></i> Student Directory
-          </button>
-          <a href="edit.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
-            <i class="fas fa-edit w-5"></i> Edit & Verify Records
           </a>
-          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white font-medium transition-colors">
-            <i class="fas fa-chart-pie w-5"></i> Reports
+          <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-600 text-white font-medium transition-colors">
+            <i class="fas fa-edit w-5"></i> Edit & Verify Records
           </button>
         </nav>
       </div>
@@ -133,299 +94,307 @@
 
     <!-- Main Content -->
     <main class="flex-1 lg:ml-72 flex flex-col min-h-screen transition-all">
-      <!-- Topbar -->
       <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10 px-6 h-20 flex items-center justify-between shadow-sm">
         <div class="flex items-center gap-4">
-          <button id="sidebarToggle" class="lg:hidden w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 transition-colors">
+          <button id="sidebarToggle" class="lg:hidden w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
             <i class="fas fa-bars text-lg"></i>
           </button>
           <div>
-            <h2 class="text-2xl font-extrabold text-slate-800">Dashboard</h2>
-            <p class="text-sm text-slate-500 font-medium">Overview of admissions and enrollments</p>
+            <h2 class="text-2xl font-extrabold text-slate-800">Edit & Verify</h2>
+            <p class="text-sm text-slate-500 font-medium">Verify student data and correct mistakes</p>
           </div>
         </div>
-        
         <div class="flex items-center gap-3">
-          <div class="hidden md:flex items-center gap-2 bg-brand-50 text-brand-700 px-4 py-2 rounded-full font-bold text-sm border border-brand-100 shadow-sm">
+          <div class="hidden md:flex items-center gap-2 bg-brand-50 text-brand-700 px-4 py-2 rounded-full font-bold text-sm border border-brand-100">
             <i class="fas fa-school"></i>
-            <span id="currentSchool">Campus: All</span>
+            <span id="currentSchool">Loading...</span>
           </div>
         </div>
       </header>
 
-      <!-- Dashboard Content -->
-      <div class="p-6 lg:p-8 flex-1">
+      <div class="p-6 lg:p-8 flex-1 w-full max-w-7xl mx-auto space-y-6">
         
-        <!-- Stats Row -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 fade-in">
-          <div class="glass-panel p-6 rounded-3xl">
-            <div class="flex justify-between items-start mb-4">
-              <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-users"></i></div>
-              <span class="text-xs font-bold px-2 py-1 bg-green-100 text-green-700 rounded-full">+12%</span>
-            </div>
-            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Total Students</p>
-            <h3 id="dashTotalStudents" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+        <!-- Dashboard Counts -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="glass-panel p-5 rounded-2xl border border-slate-200">
+            <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Students</div>
+            <div id="countTotal" class="text-3xl font-extrabold text-slate-800">0</div>
           </div>
-          
-          <div class="glass-panel p-6 rounded-3xl" style="animation-delay: 50ms;">
-            <div class="flex justify-between items-start mb-4">
-              <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-check-circle"></i></div>
-            </div>
-            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Verified Records</p>
-            <h3 id="dashVerified" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+          <div class="glass-panel p-5 rounded-2xl border border-orange-200 bg-orange-50/30">
+            <div class="text-orange-600 text-xs font-bold uppercase tracking-wider mb-1">Pending</div>
+            <div id="countPending" class="text-3xl font-extrabold text-orange-700">0</div>
           </div>
-          
-          <div class="glass-panel p-6 rounded-3xl" style="animation-delay: 100ms;">
-            <div class="flex justify-between items-start mb-4">
-              <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-clock"></i></div>
-            </div>
-            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Pending Approvals</p>
-            <h3 id="dashPending" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+          <div class="glass-panel p-5 rounded-2xl border border-green-200 bg-green-50/30">
+            <div class="text-green-600 text-xs font-bold uppercase tracking-wider mb-1">Verified</div>
+            <div id="countVerified" class="text-3xl font-extrabold text-green-700">0</div>
           </div>
-          
-          <div class="glass-panel p-6 rounded-3xl" style="animation-delay: 150ms;">
-            <div class="flex justify-between items-start mb-4">
-              <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm"><i class="fas fa-edit"></i></div>
-            </div>
-            <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">Corrected Records</p>
-            <h3 id="dashCorrected" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+          <div class="glass-panel p-5 rounded-2xl border border-blue-200 bg-blue-50/30">
+            <div class="text-blue-600 text-xs font-bold uppercase tracking-wider mb-1">Corrected</div>
+            <div id="countCorrected" class="text-3xl font-extrabold text-blue-700">0</div>
           </div>
         </div>
 
-        <!-- Recent Enrollments Table -->
-        <div class="glass-panel rounded-3xl overflow-hidden fade-in" style="animation-delay: 200ms;">
-          <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
-            <h3 class="text-lg font-bold text-slate-800">Recent Enrollments</h3>
-            <button class="text-brand-600 hover:text-brand-800 font-semibold text-sm transition-colors">View All <i class="fas fa-arrow-right ml-1"></i></button>
+        <!-- Filters -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-200 flex flex-wrap gap-4 items-end">
+          <div class="flex-1 min-w-[200px]">
+            <label class="block text-xs font-bold text-slate-500 mb-1">Search GR No / Name</label>
+            <input type="text" id="searchQuery" class="w-full px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:border-brand-500 outline-none text-sm" placeholder="Search...">
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
-                  <th class="p-4 font-bold">Student Name</th>
-                  <th class="p-4 font-bold">Grade / Class</th>
-                  <th class="p-4 font-bold">Date</th>
-                  <th class="p-4 font-bold">Status</th>
-                  <th class="p-4 font-bold text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody id="recentEnrollmentsTable" class="divide-y divide-slate-100 bg-white">
-                <tr>
-                  <td colspan="5" class="p-8 text-center text-slate-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading recent records...</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="w-full md:w-48">
+            <label class="block text-xs font-bold text-slate-500 mb-1">Class</label>
+            <select id="filterClass" class="w-full px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 outline-none text-sm">
+              <option value="">All Classes</option>
+              <option value="Kachi">Kachi</option>
+              <option value="I">I</option>
+              <option value="II">II</option>
+              <option value="III">III</option>
+              <option value="IV">IV</option>
+              <option value="V">V</option>
+              <option value="VI">VI</option>
+              <option value="VII">VII</option>
+              <option value="VIII">VIII</option>
+            </select>
           </div>
+          <div class="w-full md:w-48">
+            <label class="block text-xs font-bold text-slate-500 mb-1">Status</label>
+            <select id="filterStatus" class="w-full px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 outline-none text-sm">
+              <option value="Pending">Pending</option>
+              <option value="Verified">Verified</option>
+              <option value="Corrected">Corrected</option>
+              <option value="">All</option>
+            </select>
+          </div>
+          <button id="loadBtn" class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm transition-colors h-10">
+            <i class="fas fa-search mr-1"></i> Search
+          </button>
+        </div>
+
+        <!-- Student List -->
+        <div id="studentGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <!-- Cards will be populated here -->
+          <div class="text-center text-slate-500 py-10 col-span-full">Click Search to load students.</div>
         </div>
 
       </div>
     </main>
   </div>
 
-  <script>
-    // SSO & Portal Configuration
-    const CONFIG = {
-      // API url for central integration
-      apiBaseUrl: "https://script.google.com/macros/s/AKfycbzrcDptT72e1HEen7VxJY9xMi7V2PU_ksS9P5-rUZeavFD1tfH7h1gjrneUB7DPhGZg/exec",
-      portalApiBaseUrl: "https://script.google.com/macros/s/AKfycbxma7ltR4xYcIws1mLxMmZBXGgnxAwUHJszD9zC6-GMwMmJ837MjK-n1iSDLalOLOIt/exec",
-      portalAppId: "enrollment-app" // IMPORTANT: Must match the Central Portal DB
-    };
-    const ENROLLMENT_STORAGE_KEY = "ibfs_enrollment_user";
-    
-    let state = { user: null };
-
-    // Elements
-    const $ = id => document.getElementById(id);
-    const loginView = $('loginView');
-    const appView = $('appView');
-    const msgBox = $('loginMessage');
-
-    // Events
-    $('loginBtn').addEventListener('click', handleLocalLogin);
-    $('logoutBtn').addEventListener('click', handleLogout);
-    $('sidebarToggle').addEventListener('click', () => {
-      const sb = $('sidebar');
-      if (sb.classList.contains('-translate-x-full')) {
-        sb.classList.remove('-translate-x-full');
-      } else {
-        sb.classList.add('-translate-x-full');
-      }
-    });
-
-    // Helpers
-    function showMsg(text, type) {
-      msgBox.innerText = text;
-      msgBox.className = `mb-4 text-sm font-bold text-center p-3 rounded-xl ${type === 'err' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-green-50 text-green-600 border border-green-200'}`;
-    }
-
-    async function portalPost(payload) {
-      const params = new URLSearchParams(window.location.search);
-      const portalApiUrl = params.get("portalApiUrl") || CONFIG.portalApiBaseUrl;
-      const res = await fetch(portalApiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload || {})
-      });
-      return await res.json();
-    }
-
-    // Auth Flows
-    async function init() {
-      // 1. Check if launched from Portal via iframe SSO token
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
+  <!-- Edit Modal -->
+  <div id="editModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 modal-overlay" onclick="closeModal()"></div>
+    <div class="glass-panel w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl relative z-10 flex flex-col fade-in">
       
-      if (token) {
-        await loginWithPortalToken(token);
-      } else {
-        // 2. Check local storage
-        const saved = localStorage.getItem(ENROLLMENT_STORAGE_KEY);
-        if (saved) {
-          state.user = JSON.parse(saved);
-          renderApp();
-        }
-      }
-    }
+      <div class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-slate-200 p-6 flex justify-between items-center z-20">
+        <div>
+          <h3 class="text-2xl font-extrabold text-slate-800">Edit & Verify Student</h3>
+          <p class="text-sm text-slate-500" id="editModalSubtitle">GR No: ...</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
 
-    async function loginWithPortalToken(token) {
-      const appId = new URLSearchParams(window.location.search).get("appId") || CONFIG.portalAppId;
-      try {
-        showMsg("Validating portal session...", "ok");
-        $('loginBtn').disabled = true;
+      <div class="p-6 md:p-8 flex flex-col md:flex-row gap-8">
         
-        const result = await portalPost({ action: "verifyAccess", token, appId });
-        
-        if (result && result.status === "success" && result.allowed) {
-          state.user = result.user || result;
-          localStorage.setItem(ENROLLMENT_STORAGE_KEY, JSON.stringify(state.user));
-          renderApp();
-        } else {
-          showMsg(result.message || "Portal access denied.", "err");
-        }
-      } catch (err) {
-        showMsg("Portal connection failed.", "err");
-      } finally {
-        $('loginBtn').disabled = false;
-      }
-    }
-
-    async function handleLocalLogin() {
-      const email = $('emailInput').value.trim();
-      const pwd = $('passwordInput').value.trim();
-      if(!email || !pwd) return showMsg("Email and password required", "err");
-      
-      // Fallback local API login (if running outside portal)
-      try {
-        showMsg("Authenticating...", "ok");
-        $('loginBtn').disabled = true;
-        
-        const q = new URLSearchParams({ action: "login", email, password: pwd });
-        const res = await fetch(`${CONFIG.apiBaseUrl}?${q.toString()}`);
-        const result = await res.json();
-        
-        if(result.success || result.status === "success") {
-          state.user = result.user || result;
-          localStorage.setItem(ENROLLMENT_STORAGE_KEY, JSON.stringify(state.user));
-          renderApp();
-        } else {
-          showMsg("Invalid credentials.", "err");
-        }
-      } catch(e) {
-        showMsg("Network error.", "err");
-      } finally {
-        $('loginBtn').disabled = false;
-      }
-    }
-
-    function handleLogout() {
-      localStorage.removeItem(ENROLLMENT_STORAGE_KEY);
-      window.history.replaceState({}, "", window.location.origin + window.location.pathname);
-      window.location.reload();
-    }
-
-    function renderApp() {
-      loginView.classList.add('hidden');
-      appView.classList.remove('hidden');
-      
-      const u = state.user;
-      $('sideUserName').innerText = u.name || (u.email ? u.email.split('@')[0] : "User");
-      $('sideUserMeta').innerText = u.appRole || u.role || "User";
-      
-      // Display scope (e.g. school code)
-      if (u.scope && u.scope.includes('school=')) {
-        $('currentSchool').innerText = `Campus: ${u.scope.split('school=')[1].split(',')[0]}`;
-      } else if (u.schoolCode) {
-        $('currentSchool').innerText = `Campus: ${u.schoolCode}`;
-      } else {
-        $('currentSchool').innerText = `Campus: All`;
-      }
-      
-      loadDashboardStats();
-    }
-
-    async function loadDashboardStats() {
-      const u = state.user;
-      const schoolCode = u.schoolCode || (u.scope ? u.scope.replace('school=','') : '');
-      const payload = {
-        action: "getVerificationList",
-        schoolCode: schoolCode,
-        class: "",
-        status: "",
-        query: "",
-        user: u.email
-      };
-      
-      try {
-        const res = await fetch(CONFIG.apiBaseUrl, { 
-          method: 'POST', 
-          body: JSON.stringify(payload) 
-        });
-        const result = await res.json();
-        
-        if (result.status === 'success' && result.counts) {
-          $('dashTotalStudents').innerText = result.counts.total || 0;
-          $('dashVerified').innerText = result.counts.verified || 0;
-          $('dashPending').innerText = result.counts.pending || 0;
-          $('dashCorrected').innerText = result.counts.corrected || 0;
+        <!-- Left: Photo & Quick Actions -->
+        <div class="w-full md:w-1/3 flex flex-col items-center gap-4">
+          <div class="relative group w-48 h-56 rounded-2xl overflow-hidden border-4 border-slate-100 shadow-md cursor-pointer" onclick="$('photoInput').click()">
+            <img id="stuPhoto" src="" alt="Student Photo" class="w-full h-full object-cover bg-slate-200">
+            <div class="absolute inset-0 bg-black/50 hidden group-hover:flex flex-col items-center justify-center transition-all">
+              <div class="text-white text-center">
+                <i class="fas fa-camera text-2xl mb-1"></i>
+                <p class="text-xs font-bold">Replace Photo</p>
+              </div>
+            </div>
+            <input type="file" id="photoInput" accept="image/*" class="hidden">
+          </div>
           
-          if(result.data && result.data.length > 0) {
-            let html = '';
-            // Show last 5 students (reverse order to get newest)
-            const recent = result.data.slice().reverse().slice(0, 5);
-            recent.forEach(s => {
-               const name = s['StudentName'] || 'Unknown';
-               const gr = s['GRNo'] || '-';
-               const cls = s['CurrentClass'] || '-';
-               const vStatus = s['Verification_Status'] || 'Pending';
-               const vColor = vStatus === 'Verified' ? 'bg-green-100 text-green-700' : (vStatus === 'Corrected' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700');
-               
-               html += `<tr class="hover:bg-slate-50 transition-colors">
-                  <td class="p-4">
-                    <div class="font-bold text-slate-800">${name}</div>
-                    <div class="text-xs text-slate-500">GR No: ${gr}</div>
-                  </td>
-                  <td class="p-4 font-medium text-slate-700">${cls}</td>
-                  <td class="p-4 text-slate-600 text-sm">${new Date().toLocaleDateString()}</td>
-                  <td class="p-4">
-                    <span class="px-3 py-1 rounded-full text-xs font-bold ${vColor} border border-transparent">${vStatus}</span>
-                  </td>
-                  <td class="p-4 text-right">
-                    <button onclick="window.location.href='edit.html'" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-brand-50 text-brand-600 transition-colors flex items-center justify-center"><i class="fas fa-edit"></i></button>
-                  </td>
-                </tr>`;
-            });
-            $('recentEnrollmentsTable').innerHTML = html;
-          } else {
-            $('recentEnrollmentsTable').innerHTML = '<tr><td colspan="5" class="p-8 text-center text-slate-500">No recent records found.</td></tr>';
-          }
-        }
-      } catch(e) {
-        console.error('Failed to load dashboard stats', e);
-      }
-    }
+          <div class="flex gap-2 w-48 mt-2">
+            <button type="button" onclick="$('photoInput').click()" class="flex-1 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded-xl border border-brand-200 transition-colors flex items-center justify-center gap-2 text-sm" title="Upload New">
+              <i class="fas fa-upload"></i> New
+            </button>
+            <button type="button" onclick="openManualCrop()" class="flex-1 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold rounded-xl border border-orange-200 transition-colors flex items-center justify-center gap-2 text-sm" title="Crop Existing">
+              <i class="fas fa-crop"></i> Crop
+            </button>
+          </div>
+          <button type="button" id="viewProfileBtn" class="w-48 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2 text-sm mt-2" title="View Student Profile">
+             <i class="fas fa-id-card"></i> View Profile
+          </button>
+          
+          <div class="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 mt-2">
+            <div class="text-sm flex justify-between">
+              <span class="text-slate-500">Data Status:</span>
+              <span id="dataStatusBadge" class="font-bold">-</span>
+            </div>
+            <div class="text-sm flex justify-between">
+              <span class="text-slate-500">Photo Status:</span>
+              <span id="photoStatusBadge" class="font-bold">-</span>
+            </div>
+          </div>
 
-    // Start
-    init();
-  </script>
+          <button type="button" id="markVerifiedBtn" class="flex-1 px-4 py-3 bg-green-50 hover:bg-green-100 text-green-700 font-bold rounded-xl transition-colors border border-green-200 flex items-center justify-center gap-2 mt-4 hidden">
+            <i class="fas fa-check-circle"></i> Verified
+          </button>
+        </div>
+
+        <!-- Right: Form -->
+        <div class="w-full md:w-2/3">
+          <form id="editForm" class="space-y-4">
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">GR No</label>
+                <input type="text" id="e_grNo" readonly class="w-full px-4 py-2.5 bg-slate-100 border border-slate-200 rounded-xl font-bold text-slate-500 cursor-not-allowed text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Status</label>
+                <select id="e_status" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+                  <option value="New Admission">New Admission</option>
+                  <option value="Retained">Retained</option>
+                  <option value="Promoted">Promoted</option>
+                  <option value="Dropout">Dropout</option>
+                  <option value="Passout">Passout</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Student Name</label>
+                <input type="text" id="e_name" required class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Surname / Cast</label>
+                <input type="text" id="e_surname" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Father's Name</label>
+                <input type="text" id="e_father" required class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Mother's Name</label>
+                <input type="text" id="e_mother" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Parent CNIC</label>
+                <input type="text" id="e_cnic" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Date of Birth</label>
+                <input type="text" id="e_dob" placeholder="DD-MM-YYYY" required class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Date of Admission</label>
+                <input type="text" id="e_doa" placeholder="DD-MM-YYYY" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Current Class</label>
+                <select id="e_class" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+                  <option value="Kachi">Kachi</option>
+                  <option value="I">I</option>
+                  <option value="II">II</option>
+                  <option value="III">III</option>
+                  <option value="IV">IV</option>
+                  <option value="V">V</option>
+                  <option value="VI">VI</option>
+                  <option value="VII">VII</option>
+                  <option value="VIII">VIII</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Section</label>
+                <input type="text" id="e_section" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm" placeholder="e.g. A, B, C">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">B-Form No</label>
+                <input type="text" id="e_bform" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Gender</label>
+                <select id="e_gender" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Parent Contact</label>
+                <input type="text" id="e_contact" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-4 mt-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Village/City (Residential Address)</label>
+                <input type="text" id="e_address" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">UC</label>
+                <input type="text" id="e_uc" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">Taluka</label>
+                <input type="text" id="e_taluka" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1">District</label>
+                <input type="text" id="e_district" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-brand-500 outline-none text-sm">
+              </div>
+            </div>
+            
+            <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+              <button type="button" onclick="closeModal()" class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors">Cancel</button>
+              <button type="submit" id="saveVerifyBtn" class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold transition-colors flex items-center gap-2">
+                <i class="fas fa-save"></i> Update & Verify
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crop Modal -->
+  <div id="cropModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 modal-overlay"></div>
+    <div class="glass-panel w-full max-w-lg p-6 rounded-3xl relative z-10 flex flex-col">
+      <h3 class="text-xl font-extrabold text-slate-800 mb-4">Crop New Photo</h3>
+      <div class="w-full bg-slate-900 rounded-xl overflow-hidden mb-4 flex items-center justify-center" style="height: 300px;">
+        <img id="cropperImage" src="" class="max-w-full hidden">
+      </div>
+      <div class="flex justify-end gap-3">
+        <button type="button" onclick="$('cropModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold">Cancel</button>
+        <button type="button" id="applyCropBtn" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold">Apply & Replace</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading / Status Overlay -->
+  <div id="statusOverlay" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-overlay fade-in">
+    <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full text-center">
+      <div id="statusIcon" class="text-4xl text-brand-600 mb-3"><i class="fas fa-spinner fa-spin"></i></div>
+      <h3 id="statusTitle" class="text-lg font-bold text-slate-800">Processing</h3>
+      <p id="statusMsg" class="text-sm text-slate-500 mt-1">Please wait...</p>
+      <button id="statusCloseBtn" onclick="$('statusOverlay').classList.add('hidden')" class="hidden mt-4 px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl w-full">Close</button>
+    </div>
+  </div>
+
+  <script src="edit.js?v=9"></script>
 </body>
 </html>

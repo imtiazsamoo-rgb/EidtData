@@ -3,8 +3,8 @@ const passedPortalUrl = urlParams.get('portalApiUrl');
 const grno = urlParams.get('grno');
 
 // Configuration
-const API_URL = "https://script.google.com/macros/s/AKfycbzrcDptT72e1HEen7VxJY9xMi7V2PU_ksS9P5-rUZeavFD1tfH7h1gjrneUB7DPhGZg/exec";
-const DEFAULT_PORTAL_API_URL = "https://script.google.com/macros/s/AKfycbxxxU35VnYrGP6GLeGczEhim__XQBy-YYhuJqHEcL1YA8q721h0DW2LXEGr0GdLtT1_/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycbxxxU35VnYrGP6GLeGczEhim__XQBy-YYhuJqHEcL1YA8q721h0DW2LXEGr0GdLtT1_/exec";
+const DEFAULT_PORTAL_API_URL = "https://script.google.com/macros/s/AKfycbwqzlbHxHIF5HzvN_6kyOVA_aCds_3wtHNNLNpK1tQl47wwJ8CBIPsDWA2U3qkVpDXJ/exec"; 
 const CONFIG = {
   portalApiBaseUrl: passedPortalUrl || DEFAULT_PORTAL_API_URL,
   portalAppId: "enrollment-app" 
