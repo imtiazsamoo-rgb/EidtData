@@ -258,6 +258,18 @@
       msgBox.className = `mb-4 text-sm font-bold text-center p-3 rounded-xl ${type === 'err' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-green-50 text-green-600 border border-green-200'}`;
     }
 
+    function getSchoolCode(user) {
+      if (!user) return '';
+      const directCode = String(user.schoolCode || '').trim();
+      if (directCode) return directCode;
+
+      const scope = String(user.scope || '').trim();
+      if (!scope || scope.toLowerCase() === 'all') return '';
+
+      const schoolMatch = scope.match(/(?:^|[,;&\s])school\s*=\s*([^,;&\s]+)/i);
+      return (schoolMatch ? schoolMatch[1] : scope.split(/[,;&\s]+/)[0]).trim();
+    }
+
     async function portalPost(payload) {
       const params = new URLSearchParams(window.location.search);
       const portalApiUrl = params.get("portalApiUrl") || CONFIG.portalApiBaseUrl;
@@ -351,21 +363,15 @@
       $('sideUserName').innerText = u.name || (u.email ? u.email.split('@')[0] : "User");
       $('sideUserMeta').innerText = u.appRole || u.role || "User";
       
-      // Display scope (e.g. school code)
-      if (u.scope && u.scope.includes('school=')) {
-        $('currentSchool').innerText = `Campus: ${u.scope.split('school=')[1].split(',')[0]}`;
-      } else if (u.schoolCode) {
-        $('currentSchool').innerText = `Campus: ${u.schoolCode}`;
-      } else {
-        $('currentSchool').innerText = `Campus: All`;
-      }
+      const schoolCode = getSchoolCode(u);
+      $('currentSchool').innerText = schoolCode ? `Campus: ${schoolCode}` : `Campus: All`;
       
       loadDashboardStats();
     }
 
     async function loadDashboardStats() {
       const u = state.user;
-      const schoolCode = u.schoolCode || (u.scope ? u.scope.replace('school=','') : '');
+      const schoolCode = getSchoolCode(u);
       const payload = {
         action: "getVerificationList",
         schoolCode: schoolCode,

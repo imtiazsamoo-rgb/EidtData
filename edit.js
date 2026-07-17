@@ -37,6 +37,18 @@
       if (isNaN(d.getTime())) return dateStr;
       return String(d.getDate()).padStart(2, '0') + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + d.getFullYear();
     }
+
+    function getSchoolCode(user) {
+      if (!user) return '';
+      const directCode = String(user.schoolCode || '').trim();
+      if (directCode) return directCode;
+
+      const scope = String(user.scope || '').trim();
+      if (!scope || scope.toLowerCase() === 'all') return '';
+
+      const schoolMatch = scope.match(/(?:^|[,;&\s])school\s*=\s*([^,;&\s]+)/i);
+      return (schoolMatch ? schoolMatch[1] : scope.split(/[,;&\s]+/)[0]).trim();
+    }
     
     const $ = id => document.getElementById(id);
 
@@ -116,7 +128,7 @@
       $('sideUserName').innerText = u.name || (u.email ? u.email.split('@')[0] : "User");
       $('sideUserMeta').innerText = u.appRole || u.role || "User";
       
-      const sc = u.schoolCode || (u.scope ? u.scope.replace('school=','') : '');
+      const sc = getSchoolCode(u);
       $('currentSchool').innerText = sc ? 'Campus: ' + sc : 'Campus: All';
     }
 
@@ -166,7 +178,7 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Loading...';
       
-      const sc = state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : '');
+      const sc = getSchoolCode(state.user);
       const cls = $('filterClass').value;
       const sts = $('filterStatus').value;
       const q = $('searchQuery').value.trim();
@@ -363,7 +375,7 @@
       updateData[getRealKey(s, 'District') || 'District'] = $('e_district').value.trim();
       updateData['Status'] = $('e_status').value;
 
-      const sc = state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : '');
+      const sc = getSchoolCode(state.user);
 
       showOverlay('Updating Record', 'Saving changes to database...');
       try {
@@ -395,7 +407,7 @@
       const payload = {
         action: 'markStudentVerified',
         grNo: $('e_grNo').value,
-        schoolCode: state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : ''),
+        schoolCode: getSchoolCode(state.user),
         updatedBy: state.user.email
       };
 
@@ -441,7 +453,7 @@
       if (!state.cropper) return;
       const s = state.currentStudent;
       const gNo = s['GRNo'];
-      const sc = state.user.schoolCode || (state.user.scope ? state.user.scope.replace('school=','') : '');
+      const sc = getSchoolCode(state.user);
       
       const canvas = state.cropper.getCroppedCanvas({ width: 400, height: 400 });
       const base64Image = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
