@@ -201,7 +201,11 @@
       if(url.includes('drive.google.com/file/d/')){
         id = url.split('/d/')[1].split('/')[0];
       } else if (url.includes('id=')) {
-        id = new URL(url).searchParams.get('id');
+        try {
+          id = new URL(url).searchParams.get('id');
+        } catch(e) {
+          // Ignore invalid URL
+        }
       }
       
       if (id) {
