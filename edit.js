@@ -185,7 +185,11 @@
 
       try {
         const payload = { action: 'getVerificationList', schoolCode: sc, class: cls, status: sts, query: q, user: state.user.email };
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
         const result = await res.json();
         
         if (result.status === 'success') {
@@ -386,7 +390,11 @@
           updatedBy: state.user.email,
           data: updateData 
         };
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
         const result = await res.json();
         
         if (result.status === 'success') {
@@ -414,7 +422,11 @@
       showOverlay("Marking Verified", "Updating status...", "loading");
       
       try {
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
         const result = await res.json();
         
         if (result.status === 'success') {
@@ -471,15 +483,23 @@
           mimeType: 'image/jpeg'
         };
 
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
         const result = await res.json();
         
         if (result.status === 'success') {
           showOverlay("Success", "Photo replaced successfully.", "success");
-          $('stuPhoto').src = "data:image/jpeg;base64," + base64Image;
+          const newPhotoUrl = result.photoUrl || result.url || '';
+          if (newPhotoUrl) {
+            state.currentStudent['PhotoURL'] = newPhotoUrl;
+          }
+          $('stuPhoto').src = newPhotoUrl ? getThumb(newPhotoUrl) : "data:image/jpeg;base64," + base64Image;
           $('photoStatusBadge').innerText = "Replaced";
           $('photoStatusBadge').className = "font-bold text-blue-600";
-          loadList(); // refresh list
+          await loadList(); // refresh list
         } else {
           showOverlay("Error", result.message || "Failed to upload. Verification might be closed.", "error");
         }
