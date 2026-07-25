@@ -221,41 +221,9 @@
           $('countVerified').innerText = result.counts.verified || 0;
           $('countCorrected').innerText = result.counts.corrected || 0;
           
-          let missingBFormCount = 0;
-          let invalidBFormCount = 0;
-          let duplicateBFormCount = 0;
-          
-          if(result.data && result.data.length > 0) {
-            let bformCounts = {};
-            
-            // First pass: count frequencies
-            result.data.forEach(s => {
-               const bform = String(s['BFormNo'] || '').trim();
-               if (bform !== '') {
-                  bformCounts[bform] = (bformCounts[bform] || 0) + 1;
-               }
-            });
-
-            // Second pass: categorize
-            result.data.forEach(s => {
-               const bform = String(s['BFormNo'] || '').trim();
-               if (bform === '') {
-                 missingBFormCount++;
-               } else {
-                 const digits = bform.replace(/[^0-9]/g, '');
-                 if (digits.length !== 13) {
-                   invalidBFormCount++;
-                 }
-                 if (bformCounts[bform] > 1) {
-                   duplicateBFormCount++;
-                 }
-               }
-            });
-          }
-          
-          if($('countMissing')) $('countMissing').innerText = missingBFormCount;
-          if($('countInvalid')) $('countInvalid').innerText = invalidBFormCount;
-          if($('countDuplicate')) $('countDuplicate').innerText = duplicateBFormCount;
+          if($('countMissing')) $('countMissing').innerText = result.counts.missingBForm || 0;
+          if($('countInvalid')) $('countInvalid').innerText = result.counts.invalidBForm || 0;
+          if($('countDuplicate')) $('countDuplicate').innerText = result.counts.duplicateBForm || 0;
 
           renderGrid();
         } else {
