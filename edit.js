@@ -73,6 +73,17 @@
       showGlobalLoader("Verifying session...");
       try {
         const params = new URLSearchParams(window.location.search);
+        
+        // Check for dashboard filters
+        const statusParam = params.get("status");
+        if (statusParam && $('filterStatus')) {
+            $('filterStatus').value = statusParam;
+        }
+        const bformParam = params.get("bform");
+        if (bformParam && $('filterBForm')) {
+            $('filterBForm').value = bformParam;
+        }
+
         const token = params.get("token");
         
         if (token) {
@@ -271,6 +282,17 @@
       }
 
       const filterCls = $('filterClass').value;
+      const filterBForm = $('filterBForm') ? $('filterBForm').value : '';
+      
+      let bformMap = {};
+      if (filterBForm === 'Duplicate') {
+         state.students.forEach(s => {
+            const bf = String(s['BFormNo'] || '').trim();
+            if (bf !== '') bformMap[bf] = (bformMap[bf] || 0) + 1;
+         });
+      }
+      
+      let renderedCount = 0;
 
       state.students.forEach((s, idx) => {
         const cClass = (s['CurrentClass'] || '').trim();
@@ -278,6 +300,15 @@
         
         const sStatus = (s['Status'] || '').trim().toLowerCase().replace(/\s/g, '');
         if (sStatus === 'dropout' || sStatus === 'passout') return;
+        
+        if (filterBForm) {
+           const bf = String(s['BFormNo'] || '').trim();
+           if (filterBForm === 'Missing' && bf !== '') return;
+           if (filterBForm === 'Invalid' && (bf === '' || bf.replace(/[^0-9]/g, '').length === 13)) return;
+           if (filterBForm === 'Duplicate' && (bf === '' || bformMap[bf] <= 1)) return;
+        }
+        
+        renderedCount++;
 
         const vStatus = s['Verification_Status'] || 'Pending';
         const vColor = vStatus === 'Verified' ? 'bg-green-100 text-green-700' : (vStatus === 'Corrected' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700');
@@ -305,6 +336,10 @@
         `;
         grid.appendChild(card);
       });
+      
+      if (renderedCount === 0) {
+        grid.innerHTML = '<div class="text-center text-slate-500 py-10 col-span-full">ڪوبه شاگرد نه مليو (No students found for current filters).</div>';
+      }
     }
 
     function openEditModal(idx) {
@@ -371,6 +406,56 @@
 
     $('editForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      // Validation Logic
+      const classInput = $('e_class').value.trim();
+      const sectionInput = $('e_section').value.trim();
+      const cnicInput = $('e_cnic').value.trim();
+      const bformInput = $('e_bform').value.trim();
+      const contactInput = $('e_contact').value.trim();
+
+      if (classInput === '') {
+         showOverlay("Error", "ڪلاس لکڻ/چونڊڻ لازمي آهي.", "error");
+         return;
+      }
+      
+      if (sectionInput === '') {
+         showOverlay("Error", "ڪلاس جو سيڪشن لکڻ لازمي آهي.", "error");
+         return;
+      }
+      
+      const cnicDigits = cnicInput.replace(/[^0-9]/g, '');
+      if (cnicInput !== '' && cnicDigits.length !== 13) {
+         showOverlay("Error", "شناختي ڪارڊ نمبر 13 انگن جو هجڻ لازمي آهي (موجوده انگ: " + cnicDigits.length + ")", "error");
+         return;
+      }
+      
+      const bformDigits = bformInput.replace(/[^0-9]/g, '');
+      if (bformInput !== '' && bformDigits.length !== 13) {
+         showOverlay("Error", "ب فارم نمبر 13 انگن جو هجڻ لازمي آهي (موجوده انگ: " + bformDigits.length + ")", "error");
+         return;
+      }
+      
+      // Local Duplicate Check (checks only within the currently loaded students)
+      if (bformDigits.length === 13) {
+         const currentGR = state.currentStudent['GRNo'];
+         const isDuplicate = state.students.some(student => {
+             const bf = String(student['BFormNo'] || '').trim().replace(/[^0-9]/g, '');
+             return bf === bformDigits && student['GRNo'] !== currentGR;
+         });
+         
+         if (isDuplicate) {
+            showOverlay("Error", "هي ب فارم نمبر اڳ ۾ ئي لسٽ ۾ موجود ڪنهن ٻئي شاگرد وٽ داخل ٿيل آهي (Duplicate B-Form).", "error");
+            return;
+         }
+      }
+      
+      const contactDigits = contactInput.replace(/[^0-9]/g, '');
+      if (contactInput !== '' && contactDigits.length !== 11) {
+         showOverlay("Error", "فون نمبر 11 انگن جو هجڻ لازمي آهي (موجوده انگ: " + contactDigits.length + ")", "error");
+         return;
+      }
+
       const s = state.currentStudent;
       const gNo = s['GRNo'];
       const updateData = {};
