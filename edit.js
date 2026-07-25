@@ -30,6 +30,22 @@
     let originalData = [];
     let currentIndex = -1;
 
+    async function apiPost(payload) {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch (err) {
+        const preview = text.replace(/\s+/g, ' ').slice(0, 180);
+        throw new Error('Apps Script did not return JSON. Check deployment/access. Response: ' + preview);
+      }
+    }
+
     function toDDMMYYYY(dateStr) {
       if (!dateStr) return '';
       if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
@@ -185,12 +201,7 @@
 
       try {
         const payload = { action: 'getVerificationList', schoolCode: sc, class: cls, status: sts, query: q, user: state.user.email };
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
+        const result = await apiPost(payload);
         
         if (result.status === 'success') {
           state.students = result.data;
@@ -203,7 +214,7 @@
           alert('Failed to load data: ' + result.message);
         }
       } catch(e) {
-        alert('Network error while loading data.');
+        alert(e.message || 'Network error while loading data.');
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-search mr-1"></i> Search';
@@ -317,7 +328,10 @@
       $('e_section').value = s['Section'] || '';
       $('e_bform').value = s['BFormNo'] || '';
       $('e_gender').value = s['Gender'] || '';
-      $('e_status').value = s['Status'] || 'Admitted';
+      let currentStatus = s['Status'] || 'New Enrollment';
+      if (currentStatus === 'New Admission' || currentStatus === 'Admitted') currentStatus = 'New Enrollment';
+      $('e_status').value = currentStatus;
+      if (!$('e_status').value) $('e_status').value = 'New Enrollment';
       $('e_contact').value = s['ParentContact'] || '';
       const doa = s['DateOfAdmission'];
       $('e_doa').value = toDDMMYYYY(doa);
@@ -390,12 +404,7 @@
           updatedBy: state.user.email,
           data: updateData 
         };
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
+        const result = await apiPost(payload);
         
         if (result.status === 'success') {
           showOverlay("Success", "Record updated and verified.", "success");
@@ -422,12 +431,7 @@
       showOverlay("Marking Verified", "Updating status...", "loading");
       
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
+        const result = await apiPost(payload);
         
         if (result.status === 'success') {
           showOverlay("Success", "Record marked as correct.", "success");
@@ -483,12 +487,7 @@
           mimeType: 'image/jpeg'
         };
 
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
+        const result = await apiPost(payload);
         
         if (result.status === 'success') {
           showOverlay("Success", "Photo replaced successfully.", "success");
