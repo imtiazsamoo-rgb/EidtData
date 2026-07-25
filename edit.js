@@ -220,6 +220,43 @@
           $('countPending').innerText = result.counts.pending || 0;
           $('countVerified').innerText = result.counts.verified || 0;
           $('countCorrected').innerText = result.counts.corrected || 0;
+          
+          let missingBFormCount = 0;
+          let invalidBFormCount = 0;
+          let duplicateBFormCount = 0;
+          
+          if(result.data && result.data.length > 0) {
+            let bformCounts = {};
+            
+            // First pass: count frequencies
+            result.data.forEach(s => {
+               const bform = String(s['BFormNo'] || '').trim();
+               if (bform !== '') {
+                  bformCounts[bform] = (bformCounts[bform] || 0) + 1;
+               }
+            });
+
+            // Second pass: categorize
+            result.data.forEach(s => {
+               const bform = String(s['BFormNo'] || '').trim();
+               if (bform === '') {
+                 missingBFormCount++;
+               } else {
+                 const digits = bform.replace(/[^0-9]/g, '');
+                 if (digits.length !== 13) {
+                   invalidBFormCount++;
+                 }
+                 if (bformCounts[bform] > 1) {
+                   duplicateBFormCount++;
+                 }
+               }
+            });
+          }
+          
+          if($('countMissing')) $('countMissing').innerText = missingBFormCount;
+          if($('countInvalid')) $('countInvalid').innerText = invalidBFormCount;
+          if($('countDuplicate')) $('countDuplicate').innerText = duplicateBFormCount;
+
           renderGrid();
         } else {
           alert('Failed to load data: ' + result.message);
@@ -338,7 +375,7 @@
       });
       
       if (renderedCount === 0) {
-        grid.innerHTML = '<div class="text-center text-slate-500 py-10 col-span-full">ڪوبه شاگرد نه مليو (No students found for current filters).</div>';
+        grid.innerHTML = '<div class="text-center text-slate-500 py-10 col-span-full">No students found matching these filters.</div>';
       }
     }
 
@@ -415,24 +452,24 @@
       const contactInput = $('e_contact').value.trim();
 
       if (classInput === '') {
-         showOverlay("Error", "ڪلاس لکڻ/چونڊڻ لازمي آهي.", "error");
+         showOverlay("Error", "Class selection is mandatory.", "error");
          return;
       }
       
       if (sectionInput === '') {
-         showOverlay("Error", "ڪلاس جو سيڪشن لکڻ لازمي آهي.", "error");
+         showOverlay("Error", "Class section is mandatory.", "error");
          return;
       }
       
       const cnicDigits = cnicInput.replace(/[^0-9]/g, '');
       if (cnicInput !== '' && cnicDigits.length !== 13) {
-         showOverlay("Error", "شناختي ڪارڊ نمبر 13 انگن جو هجڻ لازمي آهي (موجوده انگ: " + cnicDigits.length + ")", "error");
+         showOverlay("Error", "CNIC must be exactly 13 digits (Current: " + cnicDigits.length + ").", "error");
          return;
       }
       
       const bformDigits = bformInput.replace(/[^0-9]/g, '');
       if (bformInput !== '' && bformDigits.length !== 13) {
-         showOverlay("Error", "ب فارم نمبر 13 انگن جو هجڻ لازمي آهي (موجوده انگ: " + bformDigits.length + ")", "error");
+         showOverlay("Error", "B-Form number must be exactly 13 digits (Current: " + bformDigits.length + ").", "error");
          return;
       }
       
@@ -445,14 +482,14 @@
          });
          
          if (isDuplicate) {
-            showOverlay("Error", "هي ب فارم نمبر اڳ ۾ ئي لسٽ ۾ موجود ڪنهن ٻئي شاگرد وٽ داخل ٿيل آهي (Duplicate B-Form).", "error");
+            showOverlay("Error", "This B-Form number is already assigned to another student in the list.", "error");
             return;
          }
       }
       
       const contactDigits = contactInput.replace(/[^0-9]/g, '');
       if (contactInput !== '' && contactDigits.length !== 11) {
-         showOverlay("Error", "فون نمبر 11 انگن جو هجڻ لازمي آهي (موجوده انگ: " + contactDigits.length + ")", "error");
+         showOverlay("Error", "Phone number must be exactly 11 digits (Current: " + contactDigits.length + ").", "error");
          return;
       }
 
